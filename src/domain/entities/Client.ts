@@ -7,7 +7,9 @@ export default class Client {
     private userName: string,
     email: string,
   ) {
-    this.email = new Email(email).value;
+    if (!id || !userName)
+      throw new Error("Os campos obrigatórios não sao validos.");
+    this.email = new Email(email).getValue();
   }
 
   public getClientId() {

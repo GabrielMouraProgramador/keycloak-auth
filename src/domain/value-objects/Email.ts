@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 export class Email {
+  private value: string = "";
   private static emailSchema = z.string().email();
-  public value: string = "";
   constructor(email: string) {
     const parseResult = Email.emailSchema.safeParse(email);
 
@@ -10,5 +10,8 @@ export class Email {
       throw new Error("Email inválido");
     }
     this.value = email;
+  }
+  public getValue() {
+    return this.value;
   }
 }
