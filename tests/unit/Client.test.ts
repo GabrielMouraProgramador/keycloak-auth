@@ -1,4 +1,4 @@
-import Client from "../../domain/entities/Client";
+import Client from "../../src/domain/entities/Client";
 
 describe("Client", () => {
   test("should create a user", () => {

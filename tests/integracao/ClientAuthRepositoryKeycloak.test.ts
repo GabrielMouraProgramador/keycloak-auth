@@ -1,4 +1,4 @@
-import ClientAuthRepositoryKeycloak from "../../infrastructure/repositories/ClientAuthRepositoryKeycloak";
+import ClientAuthRepositoryKeycloak from "../../src/infrastructure/repositories/ClientAuthRepositoryKeycloak";
 
 describe("[integracao] Keycloak", () => {
   test("should create token", async () => {

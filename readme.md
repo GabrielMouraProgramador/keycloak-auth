@@ -67,10 +67,11 @@ Este projeto é uma aplicação baseada nos princípios da **Clean Architecture*
 │   │   │── PaymentDTO.ts
 │   │── /mappers
 │   │   │── OrderMapper.ts
-│   │
-│   │── /tests
 │
-│── /config                     # Configurações gerais (ex: banco de dados, env)                   # Testes unitários e de integração
+│
+│
+│── /config                     # Configurações gerais (ex: banco de dados,
+│── /tests                     # Testes unitários e de integração
 │── server.ts                   # Arquivo de entrada principal
 │── package.json
 │── tsconfig.json

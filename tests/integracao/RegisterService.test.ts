@@ -1,6 +1,6 @@
-import RegisterService from "../../application/services/RegisterService";
-import ClientAuthRepositoryKeycloak from "../../infrastructure/repositories/ClientAuthRepositoryKeycloak";
-import ClientDbRepositoryPrisma from "../../infrastructure/repositories/ClientDbRepositoryPrisma";
+import RegisterService from "../../src/application/services/RegisterService";
+import ClientAuthRepositoryKeycloak from "../../src/infrastructure/repositories/ClientAuthRepositoryKeycloak";
+import ClientDbRepositoryPrisma from "../../src/infrastructure/repositories/ClientDbRepositoryPrisma";
 
 describe("[integracao] RegisterService", () => {
   test("should create new client ecustom", async () => {
