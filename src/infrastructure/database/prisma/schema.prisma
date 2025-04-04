@@ -12,3 +12,12 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model ClientMaster{
+  id               String @id @default(uuid())
+  user_name        String 
+  email            String @unique
+  company_name     String 
+  create_at        DateTime @default(now())
+  @@map("client_master")
+}
