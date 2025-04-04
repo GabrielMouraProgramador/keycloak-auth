@@ -19,6 +19,9 @@ Este projeto é uma aplicação baseada nos princípios da **Clean Architecture*
 │   │   │   ├── ProcessPaymentUseCase.ts
 │   │   │── /transaction
 │   │   │   ├── CreateTransactionUseCase.ts
+│   │   │
+│   │── /services
+│   │   │── RegisterService.ts
 │
 │── /domain                     # Regras de Negócio (Enterprise Business Rules)
 │   │── /entities
