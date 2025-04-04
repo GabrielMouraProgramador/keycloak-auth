@@ -9,7 +9,10 @@
     "test": "jest --watch",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "dev": "node --no-warnings --loader ts-node/esm server.ts"
+    "dev": "node --no-warnings --env-file .env --loader ts-node/esm server.ts",
+    "prisma:generate": "prisma generate --schema=src/infrastructure/database/prisma/schema.prisma",
+    "prisma:migrate": "prisma migrate dev --schema=src/infrastructure/database/prisma/schema.prisma",
+    "prisma:studio": "prisma studio --schema=src/infrastructure/database/prisma/schema.prisma"
   },
   "repository": {
     "type": "git",
@@ -39,6 +42,7 @@
     "jest": "^29.7.0",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.3",
+    "prisma": "^6.5.0",
     "ts-jest": "^29.3.1",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
@@ -46,6 +50,7 @@
     "typescript-eslint": "^8.29.0"
   },
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.2"
   }
