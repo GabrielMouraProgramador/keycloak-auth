@@ -3,6 +3,7 @@ import { $fetch } from "ofetch";
 import "dotenv/config";
 import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
 import Client from "../../domain/entities/Client";
+import { ClientMaster } from "@/domain/value-objects/ClientMaster";
 
 export default class ClientAuthRepositoryKeycloak
   implements IClientAuthRepository
@@ -110,6 +111,26 @@ export default class ClientAuthRepositoryKeycloak
     } catch (err) {
       console.error("Erro ao buscar realm:", err);
       throw new Error("Falha ao buscar realm");
+    }
+  }
+  public async createUser(
+    realm_name: string,
+    user_data: ClientMaster,
+    password: string,
+  ): Promise<void> {
+    if (!this.access_token) throw new Error("Token de acesso não disponível.");
+
+    try {
+      await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/users`, {
+        headers: {
+          Authorization: `Bearer ${this.access_token}`,
+        },
+        method: "POST",
+        body: user_data,
+      });
+    } catch (err) {
+      console.error("Erro ao Criar Client master:", err);
+      throw new Error("Erro ao Criar Client master");
     }
   }
 }
