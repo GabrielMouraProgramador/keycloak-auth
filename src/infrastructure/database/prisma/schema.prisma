@@ -21,3 +21,10 @@ model ClientMaster{
   create_at        DateTime @default(now())
   @@map("client_master")
 }
+
+model Contractor{
+  id               String @id @default(uuid())
+  realm            String @unique
+  create_at        DateTime @default(now())
+  @@map("contractor")
+}
