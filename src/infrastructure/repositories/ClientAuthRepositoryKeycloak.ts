@@ -71,4 +71,45 @@ export default class ClientAuthRepositoryKeycloak
       throw new Error("Falha ao buscar usuario");
     }
   }
+  public async createRealm(realm_name: string): Promise<void> {
+    if (!this.access_token) throw new Error("Token de acesso não disponível.");
+
+    try {
+      await $fetch(`${this.end_pont_base}/admin/realms`, {
+        headers: {
+          Authorization: `Bearer ${this.access_token}`,
+        },
+        method: "POST",
+        body: {
+          realm: realm_name,
+          enabled: true,
+          displayName: realm_name,
+          loginWithEmailAllowed: true,
+        },
+      });
+    } catch (err) {
+      console.error("Erro ao obter usuário:", err);
+      throw new Error("Falha ao criar realm");
+    }
+  }
+  public async getRealmByName(realm_name: string): Promise<void> {
+    if (!this.access_token) throw new Error("Token de acesso não disponível.");
+
+    try {
+      const realm = await $fetch(
+        `${this.end_pont_base}/admin/realms/${realm_name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.access_token}`,
+          },
+          method: "GET",
+        },
+      );
+
+      return realm;
+    } catch (err) {
+      console.error("Erro ao buscar realm:", err);
+      throw new Error("Falha ao buscar realm");
+    }
+  }
 }
