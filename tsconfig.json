@@ -9,9 +9,14 @@
     "moduleDetection": "force",
     "isolatedModules": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@config/*": ["config/*"]
+    }
   },
   "rootDir": ".",
-  "include": ["src/**/*.ts", "server.ts"],
+  "include": ["src/**/*.ts", "config/**/*.ts", "server.ts"],
   "exclude": ["node_modules", "dist"]
 }
