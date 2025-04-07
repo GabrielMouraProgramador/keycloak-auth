@@ -17,8 +17,8 @@ model Contractor{
   id                     String @id @default(uuid()) //contractor_id
   realmUnique            String @unique
   email                  String @unique
-  phone                  String @unique
-  company_name           String @unique
+  phone                  String 
+  company_name           String 
   create_at              DateTime @default(now())
   @@map("contractor")
 }
