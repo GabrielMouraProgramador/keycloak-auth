@@ -1,13 +1,21 @@
-import Client from "../entities/Client";
-import { ClientMaster } from "../value-objects/ClientMaster";
+import ConsumerAuth from "../entities/ConsumerAuth";
 
+export interface InputConsumer {
+  clientId: string;
+  name: string;
+  enabled: boolean;
+  publicClient: boolean;
+  protocol: string;
+  redirectUris: string[];
+  secret: string;
+}
 export interface IClientAuthRepository {
-  findClientByEmail(email: string): Promise<Client | null>;
-  createRealm(realm_name: string): void;
-  createRealm(realm_name: string): void;
-  createRealmUserMaster(
-    realm_name: string,
-    user_data: ClientMaster,
-    password: string,
-  ): Promise<void>;
+  masterCreateRealm(realm_name: string): void;
+  createConsumer(realm_name: string, cunsumer: ConsumerAuth): void;
+  // findClientByEmail(email: string): Promise<Client | null>;
+  // createRealmUserMaster(
+  //   realm_name: string,
+  //   user_data: ClientMaster,
+  //   password: string,
+  // ): Promise<void>;
 }

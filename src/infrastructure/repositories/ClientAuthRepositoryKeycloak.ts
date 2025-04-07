@@ -1,9 +1,7 @@
 import { $fetch } from "ofetch";
-
 import "dotenv/config";
 import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
-import Client from "../../domain/entities/Client";
-import { ClientMaster } from "@/domain/value-objects/ClientMaster";
+import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 
 export default class ClientAuthRepositoryKeycloak
   implements IClientAuthRepository
@@ -13,15 +11,14 @@ export default class ClientAuthRepositoryKeycloak
   private readonly user = process.env.KEYCLOAK_USER!;
   private readonly password = process.env.KEYCLOAK_PASSWORD!;
   private readonly grant_type = process.env.KEYCLOAK_GRANT_TYPE!;
+  private readonly client_secret = process.env.KEYCLOAK_SECRET_KEY!;
 
-  private access_token: string | null = null;
+  constructor() {}
 
-  constructor(readonly realm_name: string) {}
-
-  public async generateToken(): Promise<void> {
+  private async generateToken(consumer: string): Promise<void> {
     try {
       const { access_token } = await $fetch(
-        `${this.end_pont_base}/realms/master/protocol/openid-connect/token`,
+        `${this.end_pont_base}/realms/${consumer}/protocol/openid-connect/token`,
         {
           method: "POST",
           headers: {
@@ -32,53 +29,26 @@ export default class ClientAuthRepositoryKeycloak
             grant_type: this.grant_type,
             username: this.user,
             password: this.password,
+            client_secret: this.client_secret,
           }).toString(),
         },
       );
+
       if (!access_token) throw new Error("Falha ao acessar o acess_token");
-      this.access_token = access_token;
+      return access_token;
     } catch (err) {
       console.error("Erro ao criar Realm:", err);
       throw new Error("Falha ao gerar o token");
     }
   }
-  public async getToken(): Promise<string | null> {
-    if (!this.access_token) throw new Error("Token de acesso não disponível.");
 
-    return this.access_token;
-  }
-
-  public async findClientByEmail(email: string): Promise<Client | null> {
-    if (!this.access_token) throw new Error("Token de acesso não disponível.");
-
-    try {
-      const result = await $fetch(
-        `${this.end_pont_base}/admin/realms/${this.realm_name}/users/?email=${email}`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.access_token}`,
-            "Content-Type": "application/json",
-          },
-          method: "GET",
-        },
-      );
-      if (!result || result.length === 0) return null;
-
-      const { id, username } = result[0];
-
-      return new Client(id, username, email);
-    } catch (err) {
-      console.error("Erro ao obter usuário:", err);
-      throw new Error("Falha ao buscar usuario");
-    }
-  }
-  public async createRealm(realm_name: string): Promise<void> {
-    if (!this.access_token) throw new Error("Token de acesso não disponível.");
+  public async masterCreateRealm(realm_name: string): Promise<void> {
+    const access_token = await this.generateToken("master");
 
     try {
       await $fetch(`${this.end_pont_base}/admin/realms`, {
         headers: {
-          Authorization: `Bearer ${this.access_token}`,
+          Authorization: `Bearer ${access_token}`,
         },
         method: "POST",
         body: {
@@ -93,44 +63,64 @@ export default class ClientAuthRepositoryKeycloak
       throw new Error("Falha ao criar realm");
     }
   }
-  public async getRealmByName(realm_name: string): Promise<void> {
-    if (!this.access_token) throw new Error("Token de acesso não disponível.");
-
-    try {
-      const realm = await $fetch(
-        `${this.end_pont_base}/admin/realms/${realm_name}`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.access_token}`,
-          },
-          method: "GET",
-        },
-      );
-
-      return realm;
-    } catch (err) {
-      console.error("Erro ao buscar realm:", err);
-      throw new Error("Falha ao buscar realm");
-    }
-  }
-  public async createUser(
+  public async createConsumer(
     realm_name: string,
-    user_data: ClientMaster,
-    password: string,
+    cunsumer: ConsumerAuth,
   ): Promise<void> {
-    if (!this.access_token) throw new Error("Token de acesso não disponível.");
+    const access_token = await this.generateToken("master");
 
     try {
-      await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/users`, {
+      await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/clients`, {
         headers: {
-          Authorization: `Bearer ${this.access_token}`,
+          Authorization: `Bearer ${access_token}`,
+          "Content-Type": "application/json",
         },
         method: "POST",
-        body: user_data,
+        body: cunsumer.getValue(),
       });
     } catch (err) {
-      console.error("Erro ao Criar Client master:", err);
-      throw new Error("Erro ao Criar Client master");
+      console.error("Erro ao criar Consumer:", err);
+      throw new Error("Falha ao criar Consumer");
     }
   }
+  // public async getRealmByName(realm_name: string): Promise<void> {
+  //   if (!this.access_token) throw new Error("Token de acesso não disponível.");
+
+  //   try {
+  //     const realm = await $fetch(
+  //       `${this.end_pont_base}/admin/realms/${realm_name}`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${this.access_token}`,
+  //         },
+  //         method: "GET",
+  //       },
+  //     );
+
+  //     return realm;
+  //   } catch (err) {
+  //     console.error("Erro ao buscar realm:", err);
+  //     throw new Error("Falha ao buscar realm");
+  //   }
+  // }
+  // public async createUser(
+  //   realm_name: string,
+  //   user_data: ClientMaster,
+  //   password: string,
+  // ): Promise<void> {
+  //   if (!this.access_token) throw new Error("Token de acesso não disponível.");
+
+  //   try {
+  //     await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/users`, {
+  //       headers: {
+  //         Authorization: `Bearer ${this.access_token}`,
+  //       },
+  //       method: "POST",
+  //       body: user_data,
+  //     });
+  //   } catch (err) {
+  //     console.error("Erro ao Criar Client master:", err);
+  //     throw new Error("Erro ao Criar Client master");
+  //   }
+  // }
 }
