@@ -13,7 +13,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@config/*": ["config/*"]
+      "@config/*": ["config/*"],
+      "@application/*": ["./src/application/*"],
+      "@interfaces/*": ["./src/interfaces/*"]
     }
   },
   "rootDir": ".",
