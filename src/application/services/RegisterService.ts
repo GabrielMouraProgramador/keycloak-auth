@@ -1,7 +1,9 @@
 import { IClientDbRepository } from "../../domain/repositories/IClientDbRepository";
 import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
-import createRealmUseCase from "../use-cases/auth/createRealmUseCase";
+import { Telephone } from "@/domain/value-objects/Telephone";
+import { Email } from "@/domain/value-objects/Email";
+import { createRealmUseCase } from "../use-cases/auth/createRealmUseCase";
 
 export default class RegisterService {
   constructor(
@@ -15,6 +17,10 @@ export default class RegisterService {
     companyName: string,
     password: string,
   ): Promise<void> {
+    if (!password || !companyName) {
+      throw new Error("Alguns campos obrigatorios não foram informados");
+    }
+
     const alreadyIsClient =
       await this.clientBase.existClientMasterWithEmail(email);
 
@@ -33,7 +39,13 @@ export default class RegisterService {
       realmName = companyName;
     }
 
-    const contractorId = ""; // pendente
+    const { id: contractorId } = await this.clientBase.createNewContractor({
+      realmUnique: realmName,
+      email: new Email(email).getValue(),
+      phone: new Telephone(phone).getValue(),
+      company_name: companyName,
+    });
+
     const consumerAdminDashboard = new ConsumerAuth({
       id: "admin-dashboard",
       redirectUris: [],
@@ -53,8 +65,7 @@ export default class RegisterService {
     //   newClientMaster,
     //   password,
     // ); // 3
-    this.clientBase.createNewClientMaster(newClientMaster); // ID KEYCLOAK
-    this.clientBase.createNewContractor(realmName);
+    // this.clientBase.createNewClientMaster(newClientMaster); // ID KEYCLOAK
   }
 }
 
