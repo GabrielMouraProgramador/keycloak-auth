@@ -77,3 +77,9 @@ Este projeto é uma aplicação baseada nos princípios da **Clean Architecture*
 │── tsconfig.json
 │── .env
 ```
+
+Como usar
+
+1° Criar user master
+2° dar permissões no keycloak para criar usuario (dar somente permissões necessárias)
+3° env KEYCLOAK_GRANT_TYPE=password
