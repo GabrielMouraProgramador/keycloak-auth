@@ -13,19 +13,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model ClientMaster{
-  id               String @id @default(uuid())
-  user_name        String 
-  email            String @unique
-  phone            String
-  company_name     String 
-  create_at        DateTime @default(now())
-  @@map("client_master")
-}
-
 model Contractor{
-  id               String @id @default(uuid())
-  realm            String @unique
-  create_at        DateTime @default(now())
+  id                     String @id @default(uuid()) //contractor_id
+  realmUnique            String @unique
+  email                  String @unique
+  phone                  String @unique
+  company_name           String @unique
+  create_at              DateTime @default(now())
   @@map("contractor")
 }
