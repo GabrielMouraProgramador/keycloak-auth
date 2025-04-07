@@ -1,5 +1,7 @@
-import { IClientDbRepository } from "@/domain/repositories/IClientDbRepository";
+import { IClientDbRepository } from "../../domain/repositories/IClientDbRepository";
 import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
+import ConsumerAuth from "@/domain/entities/ConsumerAuth";
+import createRealmUseCase from "../use-cases/auth/createRealmUseCase";
 
 export default class RegisterService {
   constructor(
@@ -12,7 +14,6 @@ export default class RegisterService {
     phone: string,
     companyName: string,
     password: string,
-    domain: string,
   ): Promise<void> {
     const alreadyIsClient =
       await this.clientBase.existClientMasterWithEmail(email);
@@ -24,19 +25,43 @@ export default class RegisterService {
     const companiesSameName =
       await this.clientBase.findClientsByCompanyName(companyName);
 
-    const realmName: string =
-      companiesSameName.length > 0
-        ? `${companyName}${companiesSameName.length}`
-        : companyName;
+    let realmName: string;
+    if (companiesSameName.length > 0) {
+      //ex: realmName = atelie12
+      realmName = `${companyName}${companiesSameName.length}`;
+    } else {
+      realmName = companyName;
+    }
 
-    this.authRepository.createRealm(realmName);
+    const contractorId = ""; // pendente
+    const consumerAdminDashboard = new ConsumerAuth({
+      id: "admin-dashboard",
+      redirectUris: [],
+      enabled: true,
+      baseUrl: "http://localhost.com",
+    });
+
+    await createRealmUseCase.execulte(
+      "DASHBOARD",
+      consumerAdminDashboard,
+      contractorId,
+    );
+
+    // this.authRepository.createRealm(realmName); // 2
+    // this.authRepository.createRealmUserMaster(
+    //   realmName,
+    //   newClientMaster,
+    //   password,
+    // ); // 3
+    this.clientBase.createNewClientMaster(newClientMaster); // ID KEYCLOAK
+    this.clientBase.createNewContractor(realmName);
   }
 }
 
 ////*
-// Verificar se não existe um usuario com o email (EMAIL UNICO)
-// Criar Realm e Grupos de acesso no Keycloak
-// Criar Usuario com admin no keycloak
+// 1 - Verificar se não existe um usuario com o email (EMAIL UNICO)
+// 2 - Criar Realm e Grupos de acesso no Keycloak
+// 3 - Criar Usuario com admin no keycloak
 // Criar uma Loja Padrão
 // Fazer configurações default do SITE
 // Manter novo Cliente logado
