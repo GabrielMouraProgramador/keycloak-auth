@@ -2,7 +2,8 @@ import { $fetch } from "ofetch";
 import "dotenv/config";
 import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
-import { DomainError } from "@/domain/entities/DomainError";
+import { DomainError } from "../../domain/entities/DomainError";
+import Client from "@/domain/entities/Client";
 
 export default class ClientAuthRepositoryKeycloak
   implements IClientAuthRepository
@@ -16,10 +17,10 @@ export default class ClientAuthRepositoryKeycloak
 
   constructor() {}
 
-  private async generateToken(consumer: string): Promise<void> {
+  private async generateMasterToken(): Promise<void> {
     try {
       const { access_token } = await $fetch(
-        `${this.end_pont_base}/realms/${consumer}/protocol/openid-connect/token`,
+        `${this.end_pont_base}/realms/master/protocol/openid-connect/token`,
         {
           method: "POST",
           headers: {
@@ -43,10 +44,34 @@ export default class ClientAuthRepositoryKeycloak
       throw new DomainError("Falha ao gerar o token");
     }
   }
+  private async generateConsumerToken(consumer: string): Promise<void> {
+    try {
+      const { access_token } = await $fetch(
+        `${this.end_pont_base}/realms/${consumer}/protocol/openid-connect/token`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({
+            client_id: "admin-dashboard",
+            grant_type: "client_credentials",
+            client_secret: consumer,
+          }).toString(),
+        },
+      );
+
+      if (!access_token)
+        throw new DomainError("Falha ao acessar o acess_token");
+      return access_token;
+    } catch (err) {
+      console.error("Erro ao criar Realm:", err);
+      throw new DomainError("Falha ao gerar o token");
+    }
+  }
 
   public async masterCreateRealm(realm_name: string): Promise<void> {
-    const access_token = await this.generateToken("master");
-
+    const access_token = await this.generateMasterToken();
     try {
       await $fetch(`${this.end_pont_base}/admin/realms`, {
         headers: {
@@ -69,7 +94,7 @@ export default class ClientAuthRepositoryKeycloak
     realm_name: string,
     cunsumer: ConsumerAuth,
   ): Promise<void> {
-    const access_token = await this.generateToken("master");
+    const access_token = await this.generateMasterToken();
 
     try {
       await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/clients`, {
@@ -85,6 +110,50 @@ export default class ClientAuthRepositoryKeycloak
       throw new DomainError("Falha ao criar Consumer");
     }
   }
+  public async createNewClient(
+    client: Client,
+    realmName: string,
+  ): Promise<Client> {
+    const access_token = await this.generateMasterToken();
+    const infoClient = client.getValues();
+    try {
+      const result = await $fetch.raw(
+        `${this.end_pont_base}/admin/realms/${realmName}/users`,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+          method: "POST",
+          body: {
+            username: infoClient.userName,
+            email: infoClient.email,
+            firstName: infoClient.firstName,
+            lastName: infoClient.lastName,
+            enabled: infoClient.enabled,
+            credentials: [
+              {
+                type: "password",
+                value: infoClient.password,
+                temporary: false,
+              },
+            ],
+          },
+        },
+      );
+
+      const location = result.headers.get("location");
+      const clientId = location?.split("/").pop();
+      if (!clientId)
+        throw new DomainError("Falha ao acessar os dados do usuario");
+
+      await client.serId(clientId);
+      return client;
+    } catch (err) {
+      console.error("Erro ao criar Client:", err);
+      throw new DomainError("Falha ao criar Client");
+    }
+  }
+
   // public async getRealmByName(realm_name: string): Promise<void> {
   //   if (!this.access_token) throw new DomainError("Token de acesso não disponível.");
 
