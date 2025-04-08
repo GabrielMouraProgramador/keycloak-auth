@@ -20,5 +20,24 @@ model Contractor{
   phone                  String 
   company_name           String 
   create_at              DateTime @default(now())
+  clients                Client[] // relação 1:N com Client
+
   @@map("contractor")
+}
+
+model Client{
+  id                     String @id @unique //gerado no keycloak
+  email                  String
+  phone                  String
+  userName               String 
+  firstName              String 
+  lastName               String 
+  enabled                Boolean 
+  consumer               String
+  contractor_id          String // chave estrangeira
+  contractor             Contractor @relation(fields: [contractor_id], references: [id])
+  create_at              DateTime @default(now())
+
+
+  @@map("client")
 }
