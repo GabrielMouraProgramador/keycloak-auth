@@ -3,21 +3,24 @@ import { DomainError } from "./DomainError";
 export default class ConsumerAuth {
   private nameId: string | null = null;
   private enabled?: boolean = true;
-  private publicClient: boolean = true;
-  private protocol: string = "openid-connect";
+  private publicClient: boolean = false; // obrigatório para usar client_credentials
+  private protocol: string = "openid-connect"; //permite uso do fluxo client_credentials
   private redirectUris?: string[] = [];
   private baseUrl: string;
-  private directAccessGrantsEnabled?: boolean = true;
+  private directAccessGrantsEnabled?: boolean = true; //opcional, desativa o password grant
   private serviceAccountsEnabled?: boolean = true;
-  private standardFlowEnabled?: boolean = true;
+  private standardFlowEnabled?: boolean = false; // desativa o authorization code.
+  private clientAuthenticatorType?: string = "client-secret"; //  usa secret ao invés de JWT
+  private secret: string;
 
   constructor(data: {
     id: string;
     enabled?: boolean;
     redirectUris?: string[];
     baseUrl: string;
+    secret: string;
   }) {
-    if (!data.baseUrl || !data.id) {
+    if (!data.baseUrl || !data.id || !data.secret) {
       throw new DomainError("Os campos obrigatórios não sao validos.");
     }
 
@@ -31,6 +34,7 @@ export default class ConsumerAuth {
     if (data.id) this.nameId = data.id;
 
     this.baseUrl = this.validUrl(data.baseUrl);
+    this.secret = data.secret;
   }
   private formataUrlRedirect(url: string) {
     this.validUrl(url);
@@ -63,6 +67,8 @@ export default class ConsumerAuth {
       directAccessGrantsEnabled: this.directAccessGrantsEnabled,
       serviceAccountsEnabled: this.serviceAccountsEnabled,
       standardFlowEnabled: this.standardFlowEnabled,
+      clientAuthenticatorType: this.clientAuthenticatorType,
+      secret: this.secret,
     };
   }
 }
