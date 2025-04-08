@@ -5,6 +5,7 @@ import {
   IClientDbRepository,
   inputNewContractor,
 } from "../../domain/repositories/IClientDbRepository";
+import { DomainError } from "@/domain/entities/DomainError";
 
 export default class ClientDbRepositoryPrisma implements IClientDbRepository {
   public async existClientMasterWithEmail(email: string): Promise<boolean> {
@@ -18,7 +19,7 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       return result ? true : false;
     } catch (err) {
       console.error("Falha ao verificar se email ja existe:", err);
-      throw new Error("Falha ao validar email do client");
+      throw new DomainError("Falha ao validar email do client");
     }
   }
 
@@ -44,7 +45,7 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       );
     } catch (err) {
       console.error("Falha ao buscar clients por nome da empresa:", err);
-      throw new Error("Falha ao buscar empresas por nome");
+      throw new DomainError("Falha ao buscar empresas por nome");
     }
   }
 
@@ -57,13 +58,13 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       });
 
       if (!result || !result.id) {
-        throw new Error("Algo deu errado ao criar o contratante");
+        throw new DomainError("Algo deu errado ao criar o contratante");
       }
 
       return { id: result.id };
     } catch (err) {
       console.error("Falha ao criar contratante:", err);
-      throw new Error("Falha criar o novo contratante");
+      throw new DomainError("Falha criar o novo contratante");
     }
   }
 }

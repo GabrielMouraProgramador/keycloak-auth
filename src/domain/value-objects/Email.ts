@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DomainError } from "../entities/DomainError";
 
 export class Email {
   private value: string = "";
@@ -7,7 +8,7 @@ export class Email {
     const parseResult = Email.emailSchema.safeParse(email);
 
     if (!parseResult.success) {
-      throw new Error("Email inválido");
+      throw new DomainError("Email inválido");
     }
     this.value = email;
   }

@@ -4,6 +4,7 @@ import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { Telephone } from "@/domain/value-objects/Telephone";
 import { Email } from "@/domain/value-objects/Email";
 import { createRealmUseCase } from "../use-cases/auth/createRealmUseCase";
+import { DomainError } from "@/domain/entities/DomainError";
 
 export default class RegisterService {
   constructor(
@@ -18,14 +19,14 @@ export default class RegisterService {
     password: string,
   ): Promise<void> {
     if (!password || !companyName) {
-      throw new Error("Alguns campos obrigatorios não foram informados");
+      throw new DomainError("Alguns campos obrigatorios não foram informados");
     }
 
     const alreadyIsClient =
       await this.clientBase.existClientMasterWithEmail(email);
 
     if (alreadyIsClient) {
-      throw new Error("Email ja utilziado por outro cliente");
+      throw new DomainError("Email ja utilziado por outro cliente");
     }
 
     const companiesSameName =

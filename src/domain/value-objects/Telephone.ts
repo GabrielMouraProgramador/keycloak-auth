@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DomainError } from "../entities/DomainError";
 
 export class Telephone {
   private readonly value: string;
@@ -12,14 +13,14 @@ export class Telephone {
     }
     const parseResult = Telephone.telephoneSchema.safeParse(telephone);
     if (parseResult.error) {
-      throw new Error("Telefone inválido");
+      throw new DomainError("Telefone inválido");
     }
     if (parseResult.data.length > 11) {
-      throw new Error("Telefone inválido");
+      throw new DomainError("Telefone inválido");
     }
 
     if (parseResult.data.length == 8 || parseResult.data.length == 9) {
-      throw new Error("Informe o código de área.");
+      throw new DomainError("Informe o código de área.");
     }
 
     this.value = telephone;

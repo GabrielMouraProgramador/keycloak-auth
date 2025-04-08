@@ -18,7 +18,7 @@ export class AuthController {
     const db = new ClientDbRepositoryPrisma();
 
     const service = new RegisterService(auth, db);
-    service.handle(email, phone, companyName, password);
+    await service.handle(email, phone, companyName, password);
 
     return reply.code(201).send({ done: "o.k" });
   }

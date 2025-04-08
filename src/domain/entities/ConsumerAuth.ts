@@ -1,3 +1,5 @@
+import { DomainError } from "./DomainError";
+
 export default class ConsumerAuth {
   private nameId: string | null = null;
   private enabled?: boolean = true;
@@ -16,7 +18,7 @@ export default class ConsumerAuth {
     baseUrl: string;
   }) {
     if (!data.baseUrl || !data.id) {
-      throw new Error("Os campos obrigatórios não sao validos.");
+      throw new DomainError("Os campos obrigatórios não sao validos.");
     }
 
     if (data.redirectUris) {
@@ -44,7 +46,7 @@ export default class ConsumerAuth {
     const regex = /^https?:\/\//;
 
     if (!regex.test(url)) {
-      throw new Error("Url não é valida.");
+      throw new DomainError("Url não é valida.");
     }
 
     return url;

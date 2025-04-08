@@ -1,4 +1,5 @@
 import { Email } from "../value-objects/Email";
+import { DomainError } from "./DomainError";
 
 export default class Client {
   private email: string;
@@ -8,7 +9,7 @@ export default class Client {
     email: string,
   ) {
     if (!id || !userName)
-      throw new Error("Os campos obrigatórios não sao validos.");
+      throw new DomainError("Os campos obrigatórios não sao validos.");
     this.email = new Email(email).getValue();
   }
 

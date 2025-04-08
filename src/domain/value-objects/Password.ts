@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { DomainError } from "../entities/DomainError";
 
 export class Password {
   private readonly value: string;
@@ -8,7 +9,7 @@ export class Password {
     // valida se estao de acordo com o zod
     const parseResult = Password.passwordSchema.safeParse(passwors);
     if (!parseResult.success) {
-      throw new Error("Senha deve conter 8 ou mais dígitos.");
+      throw new DomainError("Senha deve conter 8 ou mais dígitos.");
     }
 
     this.value = passwors;

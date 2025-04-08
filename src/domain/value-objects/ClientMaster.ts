@@ -1,3 +1,4 @@
+import { DomainError } from "../entities/DomainError";
 import { Email } from "./Email";
 import { Telephone } from "./Telephone";
 
@@ -15,7 +16,7 @@ export class ClientMaster {
     companyName: string;
     create_at?: Date;
   }) {
-    if (!data.companyName) new Error("Nome da empresa não é valido");
+    if (!data.companyName) new DomainError("Nome da empresa não é valido");
 
     this.email = new Email(data.email).getValue();
     this.phone = new Telephone(data.phone).getValue();
