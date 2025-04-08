@@ -1,0 +1,18 @@
+import Client from "../../src/domain/entities/Client";
+import { createNewUserUseCase } from "../../src/application/use-cases/auth/createNewUserUseCase";
+
+describe("[integracao] CreateClientUseCase", () => {
+  test("should create new user without thorow error", async () => {
+    const realm_name = "reaml-teste-b91f6d7c-aebf-4293-adda-a2ffec5d5260";
+    const client = new Client({
+      email: "email.gabriel.moura@gmail.com",
+      phone: "43999005171",
+      userName: "RG ETC",
+      password: "12345678",
+    });
+
+    await expect(
+      createNewUserUseCase.execulte(client, "ADMIN", realm_name),
+    ).resolves.not.toThrow();
+  });
+});
