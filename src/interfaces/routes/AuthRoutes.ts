@@ -9,4 +9,5 @@ export async function AuthRoutes(app: FastifyInstance) {
     "/auth/register",
     controllerHandler(controller.create.bind(controller)),
   );
+  app.post("/auth/login", controllerHandler(controller.login.bind(controller)));
 }
