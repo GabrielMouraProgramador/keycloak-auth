@@ -62,7 +62,7 @@ export default class RegisterService {
       redirectUris: [`http://${realmName}.${this.URL_BASE_ADMIN}/admin`],
       enabled: true,
       baseUrl: `http://${realmName}.${this.URL_BASE_ADMIN}/admin`,
-      secret: "ADMIN-" + realmName,
+      secret: "ADMIN-" + contractorId,
     });
 
     await createRealmUseCase.execulte(
