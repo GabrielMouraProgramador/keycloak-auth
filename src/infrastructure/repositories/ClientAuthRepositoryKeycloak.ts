@@ -1,6 +1,9 @@
 import { $fetch } from "ofetch";
 import "dotenv/config";
-import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
+import {
+  AuthTokenResponse,
+  IClientAuthRepository,
+} from "../../domain/repositories/IClientAuthRepository";
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { DomainError } from "../../domain/entities/DomainError";
 import Client from "@/domain/entities/Client";
@@ -127,8 +130,12 @@ export default class ClientAuthRepositoryKeycloak
           body: {
             username: infoClient.userName,
             email: infoClient.email,
-            firstName: infoClient.firstName,
-            lastName: infoClient.lastName,
+            firstName: infoClient.firstName
+              ? infoClient.firstName
+              : infoClient.email,
+            lastName: infoClient.lastName
+              ? infoClient.lastName
+              : infoClient.email,
             enabled: infoClient.enabled,
             credentials: [
               {
@@ -157,15 +164,18 @@ export default class ClientAuthRepositoryKeycloak
     email: Email,
     password: string,
     realm: string,
-  ): Promise<void> {
+    cunsumer: string,
+    contractorId: string,
+  ): Promise<AuthTokenResponse> {
     try {
       const params = new URLSearchParams();
       params.append("client_id", "admin-dashboard");
       params.append("grant_type", "password");
       params.append("username", email.getValue());
       params.append("password", password);
+      params.append("client_secret", `${cunsumer}-${contractorId}`);
 
-      const { data } = await $fetch(
+      const result = await $fetch(
         `${this.end_pont_base}/realms/${realm}/protocol/openid-connect/token`,
         {
           method: "POST",
@@ -175,10 +185,14 @@ export default class ClientAuthRepositoryKeycloak
           },
         },
       );
-      console.log(data);
+      if (!result || !result?.access_token)
+        throw new Error("Nenhum usuario encontrado");
+      return result;
     } catch (err) {
       console.error("Falha ao fazer login:", err);
-      throw new DomainError("Falha  ao fazer login");
+      throw new DomainError(
+        "Falha  ao fazer login, verifique os dados e tente novamente",
+      );
     }
   }
 }

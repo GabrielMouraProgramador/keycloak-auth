@@ -22,7 +22,7 @@ export class AuthController {
     const service = new RegisterService(auth, db);
     return await service.handle(email, phone, companyName, password);
   }
-  async login(request: FastifyRequest) {
+  async loginAdmin(request: FastifyRequest) {
     const { email, password } = request.body as {
       email: string;
       password: string;
@@ -32,6 +32,6 @@ export class AuthController {
       throw new DomainError("Informe os campos obrigatorios");
     }
 
-    return await loginUseCase.execulte(email, password);
+    return await loginUseCase.execulte(email, password, "ADMIN");
   }
 }

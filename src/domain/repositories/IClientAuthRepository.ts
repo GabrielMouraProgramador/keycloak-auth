@@ -11,9 +11,27 @@ export interface InputConsumer {
   redirectUris: string[];
   secret: string;
 }
+
+export interface AuthTokenResponse {
+  access_token: string;
+  expires_in: number;
+  refresh_expires_in: number;
+  refresh_token: string;
+  token_type: string;
+  "not-before-policy": number;
+  session_state: string;
+  scope: string;
+}
+
 export interface IClientAuthRepository {
   masterCreateRealm(realm_name: string): void;
   createConsumer(realm_name: string, cunsumer: ConsumerAuth): void;
   createNewClient(clinet: Client, realm: string): Promise<Client>;
-  login(email: Email, password: string, realm: string): Promise<void>;
+  login(
+    email: Email,
+    password: string,
+    realm: string,
+    cunsumer: string,
+    contractorId: string,
+  ): Promise<AuthTokenResponse>;
 }
