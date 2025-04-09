@@ -33,14 +33,14 @@ export default class RegisterService {
     }
 
     const alreadyIsClient =
-      await this.clientBase.existClientMasterWithEmail(email);
+      await this.clientBase.existContractorWithEmail(email);
 
     if (alreadyIsClient) {
       throw new DomainError("Email ja utilziado por outro cliente");
     }
 
     const companiesSameName =
-      await this.clientBase.findClientsByCompanyName(companyName);
+      await this.clientBase.findContractorByCompanyName(companyName);
 
     let realmName: string;
     if (companiesSameName.length > 0) {
@@ -62,7 +62,7 @@ export default class RegisterService {
       redirectUris: [`http://${realmName}.${this.URL_BASE_ADMIN}/admin`],
       enabled: true,
       baseUrl: `http://${realmName}.${this.URL_BASE_ADMIN}/admin`,
-      secret: "ADMIN-" + contractorId,
+      secret: "ADMIN-" + realmName,
     });
 
     await createRealmUseCase.execulte(
