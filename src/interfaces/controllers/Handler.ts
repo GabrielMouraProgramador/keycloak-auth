@@ -1,10 +1,10 @@
 import { DomainError } from "@/domain/entities/DomainError";
 import { FastifyReply, FastifyRequest } from "fastify";
 
-type ControllerFn = (
+type ControllerFn<T = unknown> = (
   request: FastifyRequest,
   reply: FastifyReply,
-) => Promise<void>;
+) => Promise<T>;
 
 export const controllerHandler = (controllerFn: ControllerFn) => {
   return async (request: FastifyRequest, reply: FastifyReply) => {
