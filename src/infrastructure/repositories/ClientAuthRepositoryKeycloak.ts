@@ -4,6 +4,7 @@ import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepo
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { DomainError } from "../../domain/entities/DomainError";
 import Client from "@/domain/entities/Client";
+import { Email } from "@/domain/value-objects/Email";
 
 export default class ClientAuthRepositoryKeycloak
   implements IClientAuthRepository
@@ -69,7 +70,6 @@ export default class ClientAuthRepositoryKeycloak
       throw new DomainError("Falha ao gerar o token");
     }
   }
-
   public async masterCreateRealm(realm_name: string): Promise<void> {
     const access_token = await this.generateMasterToken();
     try {
@@ -153,45 +153,32 @@ export default class ClientAuthRepositoryKeycloak
       throw new DomainError("Falha ao criar Client");
     }
   }
+  public async login(
+    email: Email,
+    password: string,
+    realm: string,
+  ): Promise<void> {
+    try {
+      const params = new URLSearchParams();
+      params.append("client_id", "admin-dashboard");
+      params.append("grant_type", "password");
+      params.append("username", email.getValue());
+      params.append("password", password);
 
-  // public async getRealmByName(realm_name: string): Promise<void> {
-  //   if (!this.access_token) throw new DomainError("Token de acesso não disponível.");
-
-  //   try {
-  //     const realm = await $fetch(
-  //       `${this.end_pont_base}/admin/realms/${realm_name}`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${this.access_token}`,
-  //         },
-  //         method: "GET",
-  //       },
-  //     );
-
-  //     return realm;
-  //   } catch (err) {
-  //     console.error("Erro ao buscar realm:", err);
-  //     throw new DomainError("Falha ao buscar realm");
-  //   }
-  // }
-  // public async createUser(
-  //   realm_name: string,
-  //   user_data: ClientMaster,
-  //   password: string,
-  // ): Promise<void> {
-  //   if (!this.access_token) throw new DomainError("Token de acesso não disponível.");
-
-  //   try {
-  //     await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/users`, {
-  //       headers: {
-  //         Authorization: `Bearer ${this.access_token}`,
-  //       },
-  //       method: "POST",
-  //       body: user_data,
-  //     });
-  //   } catch (err) {
-  //     console.error("Erro ao Criar Client master:", err);
-  //     throw new DomainError("Erro ao Criar Client master");
-  //   }
-  // }
+      const { data } = await $fetch(
+        `${this.end_pont_base}/realms/${realm}/protocol/openid-connect/token`,
+        {
+          method: "POST",
+          body: params,
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        },
+      );
+      console.log(data);
+    } catch (err) {
+      console.error("Falha ao fazer login:", err);
+      throw new DomainError("Falha  ao fazer login");
+    }
+  }
 }

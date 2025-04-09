@@ -1,5 +1,6 @@
 import Client from "../entities/Client";
 import ConsumerAuth from "../entities/ConsumerAuth";
+import { Email } from "../value-objects/Email";
 
 export interface InputConsumer {
   clientId: string;
@@ -14,10 +15,5 @@ export interface IClientAuthRepository {
   masterCreateRealm(realm_name: string): void;
   createConsumer(realm_name: string, cunsumer: ConsumerAuth): void;
   createNewClient(clinet: Client, realm: string): Promise<Client>;
-  // findClientByEmail(email: string): Promise<Client | null>;
-  // createRealmUserMaster(
-  //   realm_name: string,
-  //   user_data: ClientMaster,
-  //   password: string,
-  // ): Promise<void>;
+  login(email: Email, password: string, realm: string): Promise<void>;
 }
