@@ -29,4 +29,10 @@ export class Contractor {
     if (data?.id) this.id = data.id;
     if (data?.create_at) this.create_at = data.create_at;
   }
+  getContracotId() {
+    return this.id;
+  }
+  getRealm() {
+    return this.realmUnique;
+  }
 }
