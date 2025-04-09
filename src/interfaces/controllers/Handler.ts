@@ -9,14 +9,17 @@ type ControllerFn = (
 export const controllerHandler = (controllerFn: ControllerFn) => {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      await controllerFn(request, reply);
+      const result = await controllerFn(request, reply);
+      return reply.code(200).send({ data: result, status: 200 });
     } catch (err) {
       if (err instanceof DomainError) {
-        return reply.code(409).send({ error: err.message });
+        return reply.code(200).send({ error: err.message, status: 409 });
       }
 
       console.error(err);
-      return reply.code(500).send({ error: "Erro interno do servidor." });
+      return reply
+        .code(500)
+        .send({ error: "Erro interno do servidor.", status: 500 });
     }
   };
 };
