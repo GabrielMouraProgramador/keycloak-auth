@@ -1,5 +1,5 @@
-import { ClientMaster } from "../../domain/value-objects/ClientMaster";
 import Client from "../entities/Client";
+import { Contractor } from "../entities/Contractor";
 
 export interface inputNewContractor {
   realmUnique: string;
@@ -8,8 +8,9 @@ export interface inputNewContractor {
   company_name: string;
 }
 export interface IClientDbRepository {
-  existClientMasterWithEmail(email: string): Promise<boolean>;
-  findClientsByCompanyName(companyName: string): Promise<ClientMaster[]>;
+  existContractorWithEmail(email: string): Promise<boolean>;
+  findContractorByCompanyName(companyName: string): Promise<Contractor[]>;
+  findContractorByEmail(string: string): Promise<Contractor[]>;
   createNewContractor(data: inputNewContractor): Promise<{ id: string }>;
   createNewClient(data: Client): Promise<void>;
 }

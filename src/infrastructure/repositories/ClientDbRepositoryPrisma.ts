@@ -1,5 +1,3 @@
-import { ClientMaster } from "../../domain/value-objects/ClientMaster";
-
 import { $prismaClient } from "../../../config/database";
 import {
   IClientDbRepository,
@@ -7,9 +5,10 @@ import {
 } from "../../domain/repositories/IClientDbRepository";
 import { DomainError } from "@/domain/entities/DomainError";
 import Client from "@/domain/entities/Client";
+import { Contractor } from "@/domain/entities/Contractor";
 
 export default class ClientDbRepositoryPrisma implements IClientDbRepository {
-  public async existClientMasterWithEmail(email: string): Promise<boolean> {
+  public async existContractorWithEmail(email: string): Promise<boolean> {
     try {
       const result = await $prismaClient.contractor.findUnique({
         where: {
@@ -24,9 +23,9 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
     }
   }
 
-  public async findClientsByCompanyName(
+  public async findContractorByCompanyName(
     companyName: string,
-  ): Promise<ClientMaster[]> {
+  ): Promise<Contractor[]> {
     try {
       const result = await $prismaClient.contractor.findMany({
         where: {
@@ -36,11 +35,12 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
 
       return result.map(
         (result) =>
-          new ClientMaster({
+          new Contractor({
             id: result.id,
             email: result.email,
             phone: result.phone,
             companyName: result.company_name,
+            realmUnique: result.realmUnique,
             create_at: result.create_at,
           }),
       );
@@ -49,7 +49,30 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       throw new DomainError("Falha ao buscar empresas por nome");
     }
   }
+  public async findContractorByEmail(email: string): Promise<Contractor[]> {
+    try {
+      const result = await $prismaClient.contractor.findMany({
+        where: {
+          email: email,
+        },
+      });
 
+      return result.map(
+        (result) =>
+          new Contractor({
+            id: result.id,
+            email: result.email,
+            phone: result.phone,
+            companyName: result.company_name,
+            realmUnique: result.realmUnique,
+            create_at: result.create_at,
+          }),
+      );
+    } catch (err) {
+      console.error("Falha ao buscar clients por nome da empresa:", err);
+      throw new DomainError("Falha ao buscar empresas por nome");
+    }
+  }
   public async createNewContractor(
     data: inputNewContractor,
   ): Promise<{ id: string }> {
