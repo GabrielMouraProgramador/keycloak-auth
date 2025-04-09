@@ -1,22 +1,34 @@
 import { Email } from "@/domain/value-objects/Email";
 import { IClientAuthRepository } from "../../../../domain/repositories/IClientAuthRepository";
 import { IClientDbRepository } from "@/domain/repositories/IClientDbRepository";
+import { DomainError } from "@/domain/entities/DomainError";
 
 export default class LoginUseCase {
+  private readonly consumerListAllow: string[] = ["ADMIN", "API", "SITE"];
   constructor(
     private authRepository: IClientAuthRepository,
     private db: IClientDbRepository,
   ) {}
-  async execulte(email: string, password: string) {
-    if (!password) throw new Error("Senha é um campo obrigatorio");
+  async execulte(email: string, password: string, consumer: string) {
+    if (!this.consumerListAllow.includes(consumer))
+      new DomainError("O Consumer não é valido");
+
+    if (!password) throw new DomainError("Senha é um campo obrigatorio");
     const emailValided = new Email(email);
     const contractor = await this.db.findContractorByEmail(
       emailValided.getValue(),
     );
     if (!contractor)
-      throw new Error("Não existe cliente cadastrado com esse email");
+      throw new DomainError("Não existe cliente cadastrado com esse email");
+    const contractorId = contractor.getContracotId() || "";
+    const realm = `${consumer}-${contractor.getRealm()}`;
 
-    const realm = contractor.getRealm();
-    this.authRepository.login(emailValided, password, realm);
+    return await this.authRepository.login(
+      emailValided,
+      password,
+      realm,
+      consumer,
+      contractorId,
+    );
   }
 }
