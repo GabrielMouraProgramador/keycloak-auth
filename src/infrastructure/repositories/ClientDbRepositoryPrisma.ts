@@ -49,25 +49,25 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       throw new DomainError("Falha ao buscar empresas por nome");
     }
   }
-  public async findContractorByEmail(email: string): Promise<Contractor[]> {
+  public async findContractorByEmail(
+    email: string,
+  ): Promise<Contractor | null> {
     try {
-      const result = await $prismaClient.contractor.findMany({
+      const result = await $prismaClient.contractor.findUnique({
         where: {
           email: email,
         },
       });
+      if (!result) return null;
 
-      return result.map(
-        (result) =>
-          new Contractor({
-            id: result.id,
-            email: result.email,
-            phone: result.phone,
-            companyName: result.company_name,
-            realmUnique: result.realmUnique,
-            create_at: result.create_at,
-          }),
-      );
+      return new Contractor({
+        id: result.id,
+        email: result.email,
+        phone: result.phone,
+        companyName: result.company_name,
+        realmUnique: result.realmUnique,
+        create_at: result.create_at,
+      });
     } catch (err) {
       console.error("Falha ao buscar clients por nome da empresa:", err);
       throw new DomainError("Falha ao buscar empresas por nome");

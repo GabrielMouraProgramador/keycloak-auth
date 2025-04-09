@@ -10,7 +10,7 @@ export interface inputNewContractor {
 export interface IClientDbRepository {
   existContractorWithEmail(email: string): Promise<boolean>;
   findContractorByCompanyName(companyName: string): Promise<Contractor[]>;
-  findContractorByEmail(string: string): Promise<Contractor[]>;
+  findContractorByEmail(string: string): Promise<Contractor | null>;
   createNewContractor(data: inputNewContractor): Promise<{ id: string }>;
   createNewClient(data: Client): Promise<void>;
 }
