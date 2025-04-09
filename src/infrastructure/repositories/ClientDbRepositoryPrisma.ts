@@ -57,7 +57,7 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
       const result = await $prismaClient.contractor.create({
         data: data,
       });
-      console.log(result);
+
       if (!result || !result.id) {
         throw new DomainError("Algo deu errado ao criar o contratante");
       }
@@ -77,21 +77,22 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
     }
 
     try {
-      // const result = await $prismaClient.client.create({
-      //   data: {
-      //     id: infoClient.id || "",
-      //     email: infoClient.email,
-      //     enabled: infoClient.enabled as boolean,
-      //     firstName: infoClient.firstName || "",
-      //     lastName: infoClient.firstName || "",
-      //     phone: infoClient.phone,
-      //     userName: infoClient.lastName || "",
-      //     contractor_id: infoClient.contractorId,
-      //   },
-      // });
+      const result = await $prismaClient.client.create({
+        data: {
+          id: infoClient.id,
+          consumer: infoClient.consumer,
+          email: infoClient.email,
+          enabled: infoClient.enabled ? infoClient.enabled : true,
+          firstName: infoClient.firstName ? infoClient.firstName : "",
+          lastName: infoClient.lastName ? infoClient.lastName : "",
+          phone: infoClient.phone ? infoClient.phone : "",
+          userName: infoClient.userName ? infoClient.userName : "",
+          contractor_id: infoClient.contractorId,
+        },
+      });
 
       if (!result || !result.id) {
-        throw new DomainError("Algo deu errado ao criar o contratante");
+        throw new DomainError("Algo deu errado ao criar o usuario");
       }
     } catch (err) {
       console.error("Falha ao criar contratante:", err);

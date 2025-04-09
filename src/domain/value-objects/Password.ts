@@ -14,7 +14,7 @@ export class Password {
 
     this.value = passwors;
   }
-  getPassword(): string {
+  getValue(): string {
     return this.value;
   }
 }

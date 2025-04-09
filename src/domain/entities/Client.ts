@@ -1,4 +1,5 @@
 import { Email } from "../value-objects/Email";
+import { Password } from "../value-objects/Password";
 import { Telephone } from "../value-objects/Telephone";
 import { DomainError } from "./DomainError";
 
@@ -38,6 +39,8 @@ export default class Client {
 
     this.email = new Email(data.email).getValue();
     this.phone = new Telephone(data.phone).getValue();
+    if (data?.password) this.password = new Password(data.password).getValue();
+
     this.userName = data.userName;
     this.consumer = data.consumer;
     this.contractorId = data.contractorId;
@@ -45,7 +48,6 @@ export default class Client {
     if (data?.id) this.id = data.id;
     if (data?.firstName) this.firstName = data.firstName;
     if (data?.lastName) this.lastName = data.lastName;
-    if (data?.password) this.password = data.password;
     if (data?.create_at) this.create_at = data.create_at;
     if (data?.enabled) this.enabled = data.enabled;
   }
