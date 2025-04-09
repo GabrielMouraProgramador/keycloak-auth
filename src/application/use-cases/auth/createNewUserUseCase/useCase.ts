@@ -7,11 +7,10 @@ export default class CreateNewUserUseCase {
     private authRepository: IClientAuthRepository,
     private db: IClientDbRepository,
   ) {}
-  async execulte(clinet: Client) {
+  async execulte(clinet: Client, realm: string) {
     // console.log("[contractorId]", contractorId);
-    const constructor = await clinet.getClientContractor();
     const consumer = await clinet.getClientConsumer();
-    const realmName = `${consumer}-${constructor}`;
+    const realmName = `${consumer}-${realm}`;
     const ClientWidhId = await this.authRepository.createNewClient(
       clinet,
       realmName,

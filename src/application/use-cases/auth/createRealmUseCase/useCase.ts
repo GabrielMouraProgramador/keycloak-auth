@@ -8,12 +8,12 @@ export default class CreateRealmUseCase {
   async execulte(
     consumer: "ADMIN" | "API" | "DASHBOARD",
     cunsumer: ConsumerAuth,
-    contractorId: string,
+    realm: string,
   ) {
     if (!this.consumerListAllow.includes(consumer))
       new DomainError("O Consumer não é valido");
 
-    const realmName = `${consumer}-${contractorId}`;
+    const realmName = `${consumer}-${realm}`;
     await this.authRepository.masterCreateRealm(realmName);
     await this.authRepository.createConsumer(realmName, cunsumer);
   }

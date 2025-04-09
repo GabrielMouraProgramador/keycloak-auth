@@ -68,7 +68,7 @@ export default class RegisterService {
     await createRealmUseCase.execulte(
       "ADMIN",
       consumerAdminDashboard,
-      contractorId,
+      realmName,
     );
 
     const client = new Client({
@@ -79,7 +79,7 @@ export default class RegisterService {
       consumer: "ADMIN",
       contractorId,
     });
-    await createNewUserUseCase.execulte(client);
+    await createNewUserUseCase.execulte(client, realmName);
   }
 }
 
