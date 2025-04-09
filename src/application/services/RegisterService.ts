@@ -8,6 +8,7 @@ import { DomainError } from "@/domain/entities/DomainError";
 import "dotenv/config";
 import Client from "@/domain/entities/Client";
 import { createNewUserUseCase } from "../use-cases/auth/createNewUserUseCase";
+import { Password } from "@/domain/value-objects/Password";
 
 export default class RegisterService {
   private readonly URL_BASE_ADMIN: string =
@@ -23,7 +24,11 @@ export default class RegisterService {
     companyName: string,
     password: string,
   ): Promise<void> {
-    if (!password || !companyName) {
+    const validatePassword = new Password(password).getValue();
+    const validatePhone = new Telephone(phone).getValue();
+    const validateEmail = new Email(email).getValue();
+
+    if (!validatePassword || !validatePhone || !validateEmail || !companyName) {
       throw new DomainError("Alguns campos obrigatorios não foram informados");
     }
 
@@ -75,14 +80,6 @@ export default class RegisterService {
       contractorId,
     });
     await createNewUserUseCase.execulte(client);
-
-    // this.authRepository.createRealm(realmName); // 2
-    // this.authRepository.createRealmUserMaster(
-    //   realmName,
-    //   newClientMaster,
-    //   password,
-    // ); // 3
-    // this.clientBase.createNewClientMaster(newClientMaster); // ID KEYCLOAK
   }
 }
 
