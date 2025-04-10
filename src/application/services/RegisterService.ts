@@ -50,7 +50,7 @@ export default class RegisterService {
       realmName = companyName;
     }
 
-    const URL_BASE_CLIENT = `http://${realmName}.${this.URL_BASE_ADMIN}/admin`;
+    const URL_BASE_CLIENT = `http://${realmName}.${this.URL_BASE_ADMIN}/`;
     const { id: contractorId } = await this.clientBase.createNewContractor({
       realmUnique: realmName,
       email: new Email(email).getValue(),
