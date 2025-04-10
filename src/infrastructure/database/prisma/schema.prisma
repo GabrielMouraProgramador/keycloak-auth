@@ -19,6 +19,7 @@ model Contractor{
   email                  String @unique
   phone                  String 
   company_name           String 
+  url_base               String @unique
   create_at              DateTime @default(now())
   clients                Client[] // relação 1:N com Client
 
