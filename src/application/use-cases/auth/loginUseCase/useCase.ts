@@ -23,12 +23,16 @@ export default class LoginUseCase {
     const contractorId = contractor.getContracotId() || "";
     const realm = `${consumer}-${contractor.getRealm()}`;
 
-    return await this.authRepository.login(
+    const acessToken = await this.authRepository.login(
       emailValided,
       password,
       realm,
       consumer,
       contractorId,
     );
+    return {
+      data_token: acessToken,
+      redirect: contractor.getUrlBase(),
+    };
   }
 }
