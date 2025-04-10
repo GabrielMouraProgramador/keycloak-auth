@@ -50,18 +50,20 @@ export default class RegisterService {
       realmName = companyName;
     }
 
+    const URL_BASE_CLIENT = `http://${realmName}.${this.URL_BASE_ADMIN}/admin`;
     const { id: contractorId } = await this.clientBase.createNewContractor({
       realmUnique: realmName,
       email: new Email(email).getValue(),
       phone: new Telephone(phone).getValue(),
+      url_base: URL_BASE_CLIENT,
       company_name: companyName,
     });
 
     const consumerAdminDashboard = new ConsumerAuth({
       id: "admin-dashboard",
-      redirectUris: [`http://${realmName}.${this.URL_BASE_ADMIN}/admin`],
+      redirectUris: [URL_BASE_CLIENT],
       enabled: true,
-      baseUrl: `http://${realmName}.${this.URL_BASE_ADMIN}/admin`,
+      baseUrl: URL_BASE_CLIENT,
       secret: "ADMIN-" + contractorId,
     });
 

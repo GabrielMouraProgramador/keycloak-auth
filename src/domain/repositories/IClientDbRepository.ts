@@ -5,6 +5,7 @@ export interface inputNewContractor {
   realmUnique: string;
   email: string;
   phone: string;
+  url_base: string;
   company_name: string;
 }
 export interface IClientDbRepository {

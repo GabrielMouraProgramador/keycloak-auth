@@ -40,6 +40,7 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
             email: result.email,
             phone: result.phone,
             companyName: result.company_name,
+            urlBase: result.url_base,
             realmUnique: result.realmUnique,
             create_at: result.create_at,
           }),
@@ -65,6 +66,7 @@ export default class ClientDbRepositoryPrisma implements IClientDbRepository {
         email: result.email,
         phone: result.phone,
         companyName: result.company_name,
+        urlBase: result.url_base,
         realmUnique: result.realmUnique,
         create_at: result.create_at,
       });
