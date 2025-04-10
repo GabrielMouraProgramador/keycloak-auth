@@ -3,13 +3,13 @@ import { DomainError } from "./DomainError";
 export default class ConsumerAuth {
   private nameId: string | null = null;
   private enabled?: boolean = true;
-  private publicClient: boolean = false; // obrigatório para usar client_credentials
+  private publicClient: boolean = true;
   private protocol: string = "openid-connect"; //permite uso do fluxo client_credentials
   private redirectUris?: string[] = [];
   private baseUrl: string;
   private directAccessGrantsEnabled?: boolean = true; //opcional, desativa o password grant
-  private serviceAccountsEnabled?: boolean = true;
-  private standardFlowEnabled?: boolean = false; // desativa o authorization code.
+  private serviceAccountsEnabled?: boolean = false;
+  private standardFlowEnabled?: boolean = true; // desativa o authorization code.
   private clientAuthenticatorType?: string = "client-secret"; //  usa secret ao invés de JWT
   private secret: string;
 
@@ -64,6 +64,7 @@ export default class ConsumerAuth {
       protocol: this.protocol,
       redirectUris: this.redirectUris,
       baseUrl: this.baseUrl,
+      rootUrl: this.baseUrl, // IGUAL A BASE
       directAccessGrantsEnabled: this.directAccessGrantsEnabled,
       serviceAccountsEnabled: this.serviceAccountsEnabled,
       standardFlowEnabled: this.standardFlowEnabled,
@@ -72,10 +73,19 @@ export default class ConsumerAuth {
     };
   }
 }
+
 ////**
+//  IMPORTANTE CONFIG KEYCLOAK DEVE FICAR
+// Capability config
+// Client authentication = false
+// Authorization = false
+// Standard flow = true
+// Direct access grants = true
+//
+//
 // clientId: client_id,
 // enabled: true,
-// publicClient: false,
+// publicClient: true,
 // protocol: "openid-connect",
 // redirectUris: ["http://localhost:3000/*"], // ajuste para sua aplicação
 // baseUrl: "http://localhost:3000", // opcional
