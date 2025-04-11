@@ -1,0 +1,50 @@
+services:
+  ecustom-keycloak:
+    container_name: ecustom-keycloak
+    image: quay.io/keycloak/keycloak:26.1.4
+    network_mode: "host"
+    ports:
+      - "8080:8080"
+    #volumes:
+    #  - ./keycloak-theme:/opt/keycloak/themes/meu-tema
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
+    command: ["start-dev"]
+    restart: unless-stopped
+
+  ecustom-backend:
+    container_name: ecustom-backend
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    command: ./entrypoint.sh
+    network_mode: "host"
+    depends_on:
+      - ecustom-db-backend
+    environment:
+      KEYCLOAK_ENDPOINT_BASE: "http://localhost:8080"
+      KEYCLOAK_CLIENT_ID: "admin-cli"
+      KEYCLOAK_USER: "admin"
+      KEYCLOAK_PASSWORD: "admin"
+      KEYCLOAK_GRANT_TYPE: "password"
+      KEYCLOAK_SECRET_KEY: "qrigxhZ6nL5KnZo1cSFdLab0hJsdIqWV"
+      DATABASE_URL: "postgresql://node:randompassword@localhost:5432/mydb?schema=public"
+      URL_BASE_ADMIN: "localhost:3000"
+
+  ecustom-db-backend:
+    container_name: ecustom-db-backend
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: node
+      POSTGRES_PASSWORD: randompassword
+      POSTGRES_DB: mydb
+    # volumes:
+    #   - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    network_mode: "host"
