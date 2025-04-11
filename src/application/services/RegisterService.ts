@@ -1,22 +1,16 @@
 import { IClientDbRepository } from "../../domain/repositories/IClientDbRepository";
-import { IClientAuthRepository } from "../../domain/repositories/IClientAuthRepository";
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { Telephone } from "@/domain/value-objects/Telephone";
 import { Email } from "@/domain/value-objects/Email";
 import { createRealmUseCase } from "../use-cases/auth/createRealmUseCase";
 import { DomainError } from "@/domain/entities/DomainError";
-import "dotenv/config";
 import Client from "@/domain/entities/Client";
 import { createNewUserUseCase } from "../use-cases/auth/createNewUserUseCase";
 import { Password } from "@/domain/value-objects/Password";
+import { Realm } from "@/domain/value-objects/Realm";
 
 export default class RegisterService {
-  private readonly URL_BASE_ADMIN: string =
-    process.env.URL_BASE_ADMIN || "localhost";
-  constructor(
-    private authRepository: IClientAuthRepository,
-    private clientBase: IClientDbRepository,
-  ) {}
+  constructor(private clientBase: IClientDbRepository) {}
 
   async handle(
     email: string,
@@ -24,6 +18,48 @@ export default class RegisterService {
     companyName: string,
     password: string,
   ): Promise<void> {
+    await this.validation(email, phone, companyName, password);
+
+    const realm = await Realm.create(companyName, this.clientBase);
+
+    const { id: contractorId } = await this.clientBase.createNewContractor({
+      realmUnique: realm.name,
+      email: new Email(email).getValue(),
+      phone: new Telephone(phone).getValue(),
+      url_base: realm.url,
+      company_name: companyName,
+    });
+
+    await createRealmUseCase.execulte(
+      "ADMIN",
+      new ConsumerAuth({
+        id: "admin-dashboard",
+        redirectUris: [realm.url],
+        enabled: true,
+        baseUrl: realm.url,
+        secret: "ADMIN-" + contractorId,
+      }),
+      realm.name,
+    );
+
+    await createNewUserUseCase.execulte(
+      new Client({
+        email: email,
+        phone: phone,
+        userName: realm.name,
+        password: password,
+        consumer: "ADMIN",
+        contractorId,
+      }),
+      realm.name,
+    );
+  }
+  private async validation(
+    email: string,
+    phone: string,
+    companyName: string,
+    password: string,
+  ) {
     const validatePassword = new Password(password).getValue();
     const validatePhone = new Telephone(phone).getValue();
     const validateEmail = new Email(email).getValue();
@@ -38,50 +74,6 @@ export default class RegisterService {
     if (alreadyIsClient) {
       throw new DomainError("Email ja utilziado por outro cliente");
     }
-
-    const companiesSameName =
-      await this.clientBase.findContractorByCompanyName(companyName);
-
-    let realmName: string;
-    if (companiesSameName.length > 0) {
-      //ex: realmName = atelie12 | atelie13 | atelie14
-      realmName = `${companyName}${companiesSameName.length}`;
-    } else {
-      realmName = companyName;
-    }
-
-    const URL_BASE_CLIENT = `http://${realmName}.${this.URL_BASE_ADMIN}/`;
-    const { id: contractorId } = await this.clientBase.createNewContractor({
-      realmUnique: realmName,
-      email: new Email(email).getValue(),
-      phone: new Telephone(phone).getValue(),
-      url_base: URL_BASE_CLIENT,
-      company_name: companyName,
-    });
-
-    const consumerAdminDashboard = new ConsumerAuth({
-      id: "admin-dashboard",
-      redirectUris: [URL_BASE_CLIENT],
-      enabled: true,
-      baseUrl: URL_BASE_CLIENT,
-      secret: "ADMIN-" + contractorId,
-    });
-
-    await createRealmUseCase.execulte(
-      "ADMIN",
-      consumerAdminDashboard,
-      realmName,
-    );
-
-    const client = new Client({
-      email: email,
-      phone: phone,
-      userName: companyName,
-      password: password,
-      consumer: "ADMIN",
-      contractorId,
-    });
-    await createNewUserUseCase.execulte(client, realmName);
   }
 }
 

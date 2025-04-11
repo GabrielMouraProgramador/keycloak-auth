@@ -1,6 +1,5 @@
 import { loginUseCase } from "@/application/use-cases/auth/loginUseCase";
 import RegisterService from "../../application/services/RegisterService";
-import ClientAuthRepositoryKeycloak from "../../infrastructure/repositories/ClientAuthRepositoryKeycloak";
 import ClientDbRepositoryPrisma from "../../infrastructure/repositories/ClientDbRepositoryPrisma";
 import { FastifyRequest } from "fastify";
 import { DomainError } from "@/domain/entities/DomainError";
@@ -16,10 +15,9 @@ export class AuthController {
   async create(request: FastifyRequest) {
     const { email, phone, companyName, password } = request.body as DTO;
 
-    const auth = new ClientAuthRepositoryKeycloak();
     const db = new ClientDbRepositoryPrisma();
+    const service = new RegisterService(db);
 
-    const service = new RegisterService(auth, db);
     return await service.handle(email, phone, companyName, password);
   }
   async loginAdmin(request: FastifyRequest) {
