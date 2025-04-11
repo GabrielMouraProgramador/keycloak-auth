@@ -1,3 +1,4 @@
+import { Consumer } from "../value-objects/Consumer";
 import { DomainError } from "./DomainError";
 
 export default class ConsumerAuth {
@@ -19,9 +20,14 @@ export default class ConsumerAuth {
     redirectUris?: string[];
     baseUrl: string;
     secret: string;
+    consumer: Consumer;
   }) {
     if (!data.baseUrl || !data.id || !data.secret) {
       throw new DomainError("Os campos obrigatórios não sao validos.");
+    }
+
+    if (!data.secret) {
+      throw new DomainError("A chave secreta é invalida");
     }
 
     if (data.redirectUris) {
@@ -34,7 +40,7 @@ export default class ConsumerAuth {
     if (data.id) this.nameId = data.id;
 
     this.baseUrl = this.validUrl(data.baseUrl);
-    this.secret = data.secret;
+    this.secret = `${data.consumer.getValue()}-${data.secret}`;
   }
   private formataUrlRedirect(url: string) {
     this.validUrl(url);

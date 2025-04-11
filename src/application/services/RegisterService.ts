@@ -1,16 +1,21 @@
-import { IClientDbRepository } from "../../domain/repositories/IClientDbRepository";
 import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { Telephone } from "@/domain/value-objects/Telephone";
 import { Email } from "@/domain/value-objects/Email";
-import { createRealmUseCase } from "../use-cases/auth/createRealmUseCase";
-import { DomainError } from "@/domain/entities/DomainError";
 import Client from "@/domain/entities/Client";
-import { createNewUserUseCase } from "../use-cases/auth/createNewUserUseCase";
 import { Password } from "@/domain/value-objects/Password";
-import { Realm } from "@/domain/value-objects/Realm";
+import { Consumer } from "@/domain/value-objects/Consumer";
+import CreateNewContractorUseCase from "../use-cases/auth/CreateNewContractorUseCase";
+import CreateRealmUseCase from "../use-cases/auth/CreateRealmUseCase";
+import { CreateRealmUniqueUseCase } from "../use-cases/auth/CreateRealmUniqueUseCase";
+import CreateNewUserUseCase from "../use-cases/auth/CreateNewUserUseCase";
 
 export default class RegisterService {
-  constructor(private clientBase: IClientDbRepository) {}
+  constructor(
+    private createNewContractorUseCase: CreateNewContractorUseCase,
+    private createRealmUseCase: CreateRealmUseCase,
+    private createRealmUniqueUseCase: CreateRealmUniqueUseCase,
+    private createNewUserUseCase: CreateNewUserUseCase,
+  ) {}
 
   async handle(
     email: string,
@@ -18,62 +23,44 @@ export default class RegisterService {
     companyName: string,
     password: string,
   ): Promise<void> {
-    await this.validation(email, phone, companyName, password);
+    const realm = await this.createRealmUniqueUseCase.execute(companyName);
 
-    const realm = await Realm.create(companyName, this.clientBase);
+    const emailDomain = new Email(email);
+    const phoneDomain = new Telephone(phone);
 
-    const { id: contractorId } = await this.clientBase.createNewContractor({
-      realmUnique: realm.name,
-      email: new Email(email).getValue(),
-      phone: new Telephone(phone).getValue(),
-      url_base: realm.url,
-      company_name: companyName,
-    });
+    const { id: contractorId } = await this.createNewContractorUseCase.execulte(
+      {
+        email: emailDomain,
+        realmUnique: realm,
+        phone: phoneDomain,
+        companyName: companyName,
+      },
+    );
 
-    await createRealmUseCase.execulte(
-      "ADMIN",
+    await this.createRealmUseCase.execulte(
+      new Consumer("ADMIN"),
       new ConsumerAuth({
         id: "admin-dashboard",
         redirectUris: [realm.url],
         enabled: true,
         baseUrl: realm.url,
-        secret: "ADMIN-" + contractorId,
+        consumer: new Consumer("ADMIN"),
+        secret: contractorId,
       }),
-      realm.name,
+      realm,
     );
 
-    await createNewUserUseCase.execulte(
+    await this.createNewUserUseCase.execulte(
       new Client({
-        email: email,
-        phone: phone,
+        email: emailDomain,
+        phone: phoneDomain,
         userName: realm.name,
-        password: password,
-        consumer: "ADMIN",
+        password: new Password(password),
+        consumer: new Consumer("ADMIN"),
         contractorId,
       }),
-      realm.name,
+      realm,
     );
-  }
-  private async validation(
-    email: string,
-    phone: string,
-    companyName: string,
-    password: string,
-  ) {
-    const validatePassword = new Password(password).getValue();
-    const validatePhone = new Telephone(phone).getValue();
-    const validateEmail = new Email(email).getValue();
-
-    if (!validatePassword || !validatePhone || !validateEmail || !companyName) {
-      throw new DomainError("Alguns campos obrigatorios não foram informados");
-    }
-
-    const alreadyIsClient =
-      await this.clientBase.existContractorWithEmail(email);
-
-    if (alreadyIsClient) {
-      throw new DomainError("Email ja utilziado por outro cliente");
-    }
   }
 }
 

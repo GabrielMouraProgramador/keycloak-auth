@@ -2,31 +2,31 @@ import { Email } from "../value-objects/Email";
 import { Password } from "../value-objects/Password";
 import { Telephone } from "../value-objects/Telephone";
 import { DomainError } from "./DomainError";
+import { Consumer } from "../value-objects/Consumer";
 
 export default class Client {
-  private readonly consumerListAllow: string[] = ["ADMIN", "API", "SITE"];
   public id?: string | undefined = undefined;
-  public readonly email: string;
-  public readonly phone: string;
+  public readonly email: Email;
+  public readonly phone: Telephone;
   public readonly userName: string;
   public readonly contractorId: string;
-  public readonly consumer: string;
+  public readonly consumer: Consumer;
   public readonly firstName?: string;
   public readonly lastName?: string;
-  public readonly password?: string;
+  public readonly password?: Password;
   public readonly create_at?: Date;
   public enabled?: boolean = true;
 
   constructor(data: {
     id?: string;
-    email: string;
-    phone: string;
+    email: Email;
+    phone: Telephone;
     userName: string;
-    consumer: string;
+    consumer: Consumer;
     contractorId: string;
     firstName?: string;
     lastName?: string;
-    password?: string;
+    password?: Password;
     enabled?: boolean;
     create_at?: Date;
   }) {
@@ -34,12 +34,9 @@ export default class Client {
     if (!data.contractorId) new DomainError("O contratante não foi informado");
     if (!data.consumer) new DomainError("O Consumer não é valido");
 
-    if (!this.consumerListAllow.includes(data.consumer))
-      new DomainError("O Consumer não é valido");
-
-    this.email = new Email(data.email).getValue();
-    this.phone = new Telephone(data.phone).getValue();
-    if (data?.password) this.password = new Password(data.password).getValue();
+    this.email = data.email;
+    this.phone = data.phone;
+    if (data?.password) this.password = data.password;
 
     this.userName = data.userName;
     this.consumer = data.consumer;
@@ -82,7 +79,7 @@ export default class Client {
       create_at: this.create_at,
     };
   }
-  public serId(id: string) {
+  public setId(id: string) {
     this.id = id;
   }
 }

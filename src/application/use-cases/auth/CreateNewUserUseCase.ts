@@ -1,19 +1,19 @@
 import Client from "@/domain/entities/Client";
-import { IClientAuthRepository } from "../../../../domain/repositories/IClientAuthRepository";
+import { IClientAuthRepository } from "@/domain/repositories/IClientAuthRepository";
 import { IClientDbRepository } from "@/domain/repositories/IClientDbRepository";
+import { RealmUnique } from "@/domain/value-objects/RealmUnique";
 
 export default class CreateNewUserUseCase {
   constructor(
     private authRepository: IClientAuthRepository,
     private db: IClientDbRepository,
   ) {}
-  async execulte(clinet: Client, realm: string) {
-    // console.log("[contractorId]", contractorId);
+  async execulte(clinet: Client, realm: RealmUnique) {
     const consumer = await clinet.getClientConsumer();
-    const realmName = `${consumer}-${realm}`;
     const ClientWidhId = await this.authRepository.createNewClient(
       clinet,
-      realmName,
+      consumer,
+      realm,
     );
 
     await this.db.createNewClient(ClientWidhId);

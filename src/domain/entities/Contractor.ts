@@ -1,36 +1,43 @@
 import { DomainError } from "../entities/DomainError";
 import { Email } from "../value-objects/Email";
+import { RealmUnique } from "../value-objects/RealmUnique";
 import { Telephone } from "../value-objects/Telephone";
 
 export class Contractor {
-  public readonly id?: string;
-  public readonly realmUnique: string;
-  public readonly email: string;
-  public readonly phone: string;
+  public readonly id: string;
+  public readonly realmUnique: RealmUnique;
+  public readonly email: Email;
+  public readonly phone: Telephone;
   public readonly urlBase: string;
   public readonly companyName: string;
   public readonly create_at?: Date;
 
   constructor(data: {
-    id?: string;
-    email: string;
-    phone: string;
+    id: string;
+    email: Email;
+    phone: Telephone;
     companyName: string;
-    realmUnique: string;
+    realmUnique: RealmUnique;
     urlBase: string;
     create_at?: Date;
   }) {
-    if (!data.companyName) new DomainError("Nome da empresa não é valido");
-    if (!data.realmUnique) new DomainError("Alguns campos obrigatorio");
-    if (!data.urlBase) new DomainError("Alguns campos obrigatorio");
+    if (
+      !data.id ||
+      !data.urlBase ||
+      !data.companyName ||
+      !data.realmUnique ||
+      !data.companyName
+    ) {
+      new DomainError("Alguns campos obrigatorios não foram informados");
+    }
 
-    this.email = new Email(data.email).getValue();
-    this.phone = new Telephone(data.phone).getValue();
+    this.id = data.id;
+    this.email = data.email;
+    this.phone = data.phone;
     this.companyName = data.companyName;
     this.realmUnique = data.realmUnique;
     this.urlBase = data.urlBase;
 
-    if (data?.id) this.id = data.id;
     if (data?.create_at) this.create_at = data.create_at;
   }
   getContracotId() {

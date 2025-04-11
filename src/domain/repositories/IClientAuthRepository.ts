@@ -1,6 +1,9 @@
 import Client from "../entities/Client";
 import ConsumerAuth from "../entities/ConsumerAuth";
+import { Consumer } from "../value-objects/Consumer";
 import { Email } from "../value-objects/Email";
+import { Password } from "../value-objects/Password";
+import { RealmUnique } from "../value-objects/RealmUnique";
 
 export interface InputConsumer {
   clientId: string;
@@ -24,14 +27,22 @@ export interface AuthTokenResponse {
 }
 
 export interface IClientAuthRepository {
-  masterCreateRealm(realm_name: string): void;
-  createConsumer(realm_name: string, cunsumer: ConsumerAuth): void;
-  createNewClient(clinet: Client, realm: string): Promise<Client>;
+  masterCreateRealm(consumer: Consumer, realm: RealmUnique): void;
+  createConsumer(
+    consumer: Consumer,
+    realm: RealmUnique,
+    consumerAuth: ConsumerAuth,
+  ): void;
+  createNewClient(
+    clinet: Client,
+    consumer: Consumer,
+    realm: RealmUnique,
+  ): Promise<Client>;
   login(
     email: Email,
-    password: string,
-    realm: string,
-    cunsumer: string,
+    password: Password,
+    realm: RealmUnique,
+    consumer: Consumer,
     contractorId: string,
   ): Promise<AuthTokenResponse>;
 }

@@ -1,17 +1,19 @@
 import Client from "../entities/Client";
 import { Contractor } from "../entities/Contractor";
+import { Email } from "../value-objects/Email";
+import { RealmUnique } from "../value-objects/RealmUnique";
+import { Telephone } from "../value-objects/Telephone";
 
 export interface inputNewContractor {
-  realmUnique: string;
-  email: string;
-  phone: string;
-  url_base: string;
-  company_name: string;
+  realmUnique: RealmUnique;
+  email: Email;
+  phone: Telephone;
+  companyName: string;
 }
 export interface IClientDbRepository {
-  existContractorWithEmail(email: string): Promise<boolean>;
+  existContractorWithEmail(email: Email): Promise<boolean>;
   findContractorByCompanyName(companyName: string): Promise<Contractor[]>;
-  findContractorByEmail(string: string): Promise<Contractor | null>;
+  findContractorByEmail(email: Email): Promise<Contractor | null>;
   createNewContractor(data: inputNewContractor): Promise<{ id: string }>;
   createNewClient(data: Client): Promise<void>;
 }

@@ -8,6 +8,9 @@ import ConsumerAuth from "@/domain/entities/ConsumerAuth";
 import { DomainError } from "../../domain/entities/DomainError";
 import Client from "@/domain/entities/Client";
 import { Email } from "@/domain/value-objects/Email";
+import { Consumer } from "@/domain/value-objects/Consumer";
+import { RealmUnique } from "@/domain/value-objects/RealmUnique";
+import { Password } from "@/domain/value-objects/Password";
 
 export default class ClientAuthRepositoryKeycloak
   implements IClientAuthRepository
@@ -48,43 +51,22 @@ export default class ClientAuthRepositoryKeycloak
       throw new DomainError("Falha ao gerar o token");
     }
   }
-  private async generateConsumerToken(consumer: string): Promise<void> {
-    try {
-      const { access_token } = await $fetch(
-        `${this.end_pont_base}/realms/${consumer}/protocol/openid-connect/token`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams({
-            client_id: "admin-dashboard",
-            grant_type: "client_credentials",
-            client_secret: consumer,
-          }).toString(),
-        },
-      );
-
-      if (!access_token)
-        throw new DomainError("Falha ao acessar o acess_token");
-      return access_token;
-    } catch (err) {
-      console.error("Erro ao criar Realm:", err);
-      throw new DomainError("Falha ao gerar o token");
-    }
-  }
-  public async masterCreateRealm(realm_name: string): Promise<void> {
+  public async masterCreateRealm(
+    consumer: Consumer,
+    realm: RealmUnique,
+  ): Promise<void> {
     const access_token = await this.generateMasterToken();
     try {
+      const realmName = `${consumer.getValue()}-${realm.name}`;
       await $fetch(`${this.end_pont_base}/admin/realms`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
         method: "POST",
         body: {
-          realm: realm_name,
+          realm: realmName,
           enabled: true,
-          displayName: realm_name,
+          displayName: realmName,
           loginWithEmailAllowed: true,
         },
       });
@@ -94,19 +76,21 @@ export default class ClientAuthRepositoryKeycloak
     }
   }
   public async createConsumer(
-    realm_name: string,
-    cunsumer: ConsumerAuth,
+    consumer: Consumer,
+    realm: RealmUnique,
+    consumerAuth: ConsumerAuth,
   ): Promise<void> {
     const access_token = await this.generateMasterToken();
+    const realmName = `${consumer.getValue()}-${realm.name}`;
 
     try {
-      await $fetch(`${this.end_pont_base}/admin/realms/${realm_name}/clients`, {
+      await $fetch(`${this.end_pont_base}/admin/realms/${realmName}/clients`, {
         headers: {
           Authorization: `Bearer ${access_token}`,
           "Content-Type": "application/json",
         },
         method: "POST",
-        body: cunsumer.getValue(),
+        body: consumerAuth.getValue(),
       });
     } catch (err) {
       console.error("Erro ao criar Consumer:", err);
@@ -115,8 +99,10 @@ export default class ClientAuthRepositoryKeycloak
   }
   public async createNewClient(
     client: Client,
-    realmName: string,
+    consumer: Consumer,
+    realm: RealmUnique,
   ): Promise<Client> {
+    const realmName = `${consumer.getValue()}-${realm.name}`;
     const access_token = await this.generateMasterToken();
     const infoClient = client.getValues();
     try {
@@ -153,7 +139,7 @@ export default class ClientAuthRepositoryKeycloak
       if (!clientId)
         throw new DomainError("Falha ao acessar os dados do usuario");
 
-      await client.serId(clientId);
+      await client.setId(clientId);
       return client;
     } catch (err) {
       console.error("Erro ao criar Client:", err);
@@ -162,21 +148,22 @@ export default class ClientAuthRepositoryKeycloak
   }
   public async login(
     email: Email,
-    password: string,
-    realm: string,
-    cunsumer: string,
+    password: Password,
+    realm: RealmUnique,
+    consumer: Consumer,
     contractorId: string,
   ): Promise<AuthTokenResponse> {
     try {
+      const realmName = `${consumer.getValue()}-${realm.name}`;
       const params = new URLSearchParams();
       params.append("client_id", "admin-dashboard");
       params.append("grant_type", "password");
       params.append("username", email.getValue());
-      params.append("password", password);
-      params.append("client_secret", `${cunsumer}-${contractorId}`);
+      params.append("password", password.getValue());
+      params.append("client_secret", `${consumer.getValue()}-${contractorId}`);
 
       const result = await $fetch(
-        `${this.end_pont_base}/realms/${realm}/protocol/openid-connect/token`,
+        `${this.end_pont_base}/realms/${realmName}/protocol/openid-connect/token`,
         {
           method: "POST",
           body: params,

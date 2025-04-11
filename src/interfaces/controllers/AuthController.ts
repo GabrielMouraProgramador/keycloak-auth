@@ -1,8 +1,14 @@
-import { loginUseCase } from "@/application/use-cases/auth/loginUseCase";
 import RegisterService from "../../application/services/RegisterService";
 import ClientDbRepositoryPrisma from "../../infrastructure/repositories/ClientDbRepositoryPrisma";
 import { FastifyRequest } from "fastify";
-import { DomainError } from "@/domain/entities/DomainError";
+import CreateNewContractorUseCase from "@/application/use-cases/auth/CreateNewContractorUseCase";
+import ClientAuthRepositoryKeycloak from "@/infrastructure/repositories/ClientAuthRepositoryKeycloak";
+import CreateRealmUseCase from "@/application/use-cases/auth/CreateRealmUseCase";
+import { CreateRealmUniqueUseCase } from "@/application/use-cases/auth/CreateRealmUniqueUseCase";
+import CreateNewUserUseCase from "@/application/use-cases/auth/CreateNewUserUseCase";
+import LoginUseCase from "@/application/use-cases/auth/LoginUseCase";
+import { Email } from "@/domain/value-objects/Email";
+import { Password } from "@/domain/value-objects/Password";
 
 interface DTO {
   email: string;
@@ -16,7 +22,19 @@ export class AuthController {
     const { email, phone, companyName, password } = request.body as DTO;
 
     const db = new ClientDbRepositoryPrisma();
-    const service = new RegisterService(db);
+    const auth = new ClientAuthRepositoryKeycloak();
+
+    const createNewContractorUseCase = new CreateNewContractorUseCase(db);
+    const createRealmUseCase = new CreateRealmUseCase(auth);
+    const createRealmUniqueUseCase = new CreateRealmUniqueUseCase(db);
+    const createNewUserUseCase = new CreateNewUserUseCase(auth, db);
+
+    const service = new RegisterService(
+      createNewContractorUseCase,
+      createRealmUseCase,
+      createRealmUniqueUseCase,
+      createNewUserUseCase,
+    );
 
     return await service.handle(email, phone, companyName, password);
   }
@@ -26,10 +44,15 @@ export class AuthController {
       password: string;
     };
 
-    if (!email || !password) {
-      throw new DomainError("Informe os campos obrigatorios");
-    }
+    const db = new ClientDbRepositoryPrisma();
+    const auth = new ClientAuthRepositoryKeycloak();
 
-    return await loginUseCase.execulte(email, password, "ADMIN");
+    const loginUseCase = new LoginUseCase(auth, db);
+
+    return await loginUseCase.execulte(
+      new Email(email),
+      new Password(password),
+      "ADMIN",
+    );
   }
 }
