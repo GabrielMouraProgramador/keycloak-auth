@@ -6,7 +6,7 @@
           <VCol cols="12" md="6">
             <h1>Sign In</h1>
             <p class="text-medium-emphasis">Enter your details to get started</p>
-            <div calss="h-50">
+            <div calss="h-50 my-2">
               <v-alert
                 v-model="alert.active"
                 variant="tonal"
@@ -22,7 +22,7 @@
                       color="rgb(220 38 38)"
                       icon="mdi-alert-circle"
                       size="large"
-                      class="my-auto"
+                      class="my-auto mr-2"
                     ></v-icon>
                     <p class="my-auto text-sm md:text-base text-red-600">
                       {{ alert.text }}
@@ -32,7 +32,7 @@
               </v-alert>
             </div>
 
-            <VForm @submit.prevent="submit" class="mt-7">
+            <VForm v-model="validationForm" class="mt-7">
               <div class="mt-1">
                 <label class="label text-grey-darken-2" for="email">Email</label>
                 <VTextField
@@ -55,10 +55,10 @@
                   type="password"
                 />
               </div>
-              <div class="mt-5">
-                <VBtn type="submit" block min-height="44" class="gradient primary">Sign In</VBtn>
-              </div>
             </VForm>
+            <div class="mt-5">
+              <VBtn @click="submit()" block min-height="44" class="gradient primary">Sign In</VBtn>
+            </div>
 
             <p class="text-body-2 mt-4">
               <span
@@ -96,6 +96,7 @@ const { ruleEmail, rulePassLen, ruleRequired } = useFormRules();
 
 const email = ref("");
 const password = ref("");
+const validationForm = ref(false);
 const alert = ref({
   active: false,
   text: "",

@@ -6,9 +6,11 @@
           <VCol cols="12" md="6">
             <h1>Você já está logado</h1>
             <p class="text-medium-emphasis">Área segura e autenticidade</p>
-            <VBtn @click="$keycloak.logout()" block min-height="45" class="gradient primary"
-              >sign out</VBtn
-            >
+            <br />
+            <VChip>
+              {{ useSubdomain() }}
+            </VChip>
+            <br />
           </VCol>
         </VRow>
       </VCol>

@@ -6,7 +6,7 @@
           <VCol cols="12" md="6">
             <h1>Sign Up</h1>
             <p class="text-medium-emphasis">Enter your details to get started</p>
-            <div calss="h-50">
+            <div calss="h-50 my-2">
               <v-alert
                 v-model="alert.active"
                 :color="alert.type"
@@ -22,7 +22,7 @@
                       color="rgb(220 38 38)"
                       icon="mdi-alert-circle"
                       size="large"
-                      class="my-auto"
+                      class="my-auto mr-2"
                     ></v-icon>
                     <p class="my-auto text-sm md:text-base text-red-600">
                       {{ alert.text }}
@@ -71,7 +71,6 @@
                   name="password"
                 />
               </div>
-              {{ validationForm }}
             </VForm>
             <div class="mt-5">
               <VBtn
