@@ -4,7 +4,59 @@ Este projeto é uma aplicação baseada nos princípios da **Clean Architecture*
 
 ---
 
-## 📁 Estrutura de Pastas
+# 📁 Frontend com Nuxt
+
+Projeto desenvolvido com foco em arquitetura escalável, autenticação robusta e boas práticas de desenvolvimento.
+
+---
+
+## 🚀 Tecnologias Utilizadas
+
+- **[Nuxt.js](https://nuxt.com/)** + **[Vuetify](https://vuetifyjs.com/)** — Frontend moderno e responsivo
+- **[Prisma ORM](https://www.prisma.io/)** — Mapeamento objeto-relacional
+- **[Keycloak](https://www.keycloak.org/)** — Autenticação e autorização via OAuth2
+- **[Fastify](https://www.fastify.io/)** — Servidor web leve e eficiente
+- **[PostgreSQL](https://www.postgresql.org/)** — Banco de dados relacional
+- **[Docker](https://www.docker.com/)** + **Docker Compose** — Gerenciamento de containers
+- **Princípios SOLID** + **DDD (Domain-Driven Design)** — Arquitetura orientada ao domínio
+
+---
+
+## 🔐 Autenticação
+
+Rotas principais disponíveis:
+
+- `POST /auth/register` — Registro de um novo cliente e admin
+- `POST /auth/login-admin` — Login do administrador
+
+---
+
+## 🛡️ Integração com Keycloak
+
+- Para **cada subdomínio**, é criado automaticamente um **Realm** no Keycloak.
+- O campo `consumer` recebe o valor `ADMIN`, representando um cliente administrativo.
+- O nome da empresa (utilizado como identificador único) é representado no backend pela variável `RealmUnique`.
+
+---
+
+## 🧑‍💼 Criação de Cliente e Usuário Admin
+
+Ao realizar o cadastro via rota `/auth/register`:
+
+1. Um **Realm** exclusivo é criado no Keycloak com base no nome da empresa.
+2. Um **cliente** chamado `admin-dashboard` é registrado nesse Realm.
+3. Um **usuário administrador** é criado com o e-mail e senha informados no momento do registro.
+
+---
+
+## 📦 Como Executar com Docker
+
+````bash
+docker-compose up --build
+
+
+
+## 📁 Estrutura de Pastas BACKEND exemplo
 
 ```bash
 /src
@@ -70,16 +122,10 @@ Este projeto é uma aplicação baseada nos princípios da **Clean Architecture*
 │
 │
 │
-│── /config                     # Configurações gerais (ex: banco de dados,
+│── /config                    # Configurações gerais (ex: banco de dados,
 │── /tests                     # Testes unitários e de integração
-│── server.ts                   # Arquivo de entrada principal
+│── server.ts                  # Arquivo de entrada principal
 │── package.json
 │── tsconfig.json
 │── .env
-```
-
-Como usar
-
-1° Criar user master
-2° dar permissões no keycloak para criar usuario (dar somente permissões necessárias)
-3° env KEYCLOAK_GRANT_TYPE=password
+````
