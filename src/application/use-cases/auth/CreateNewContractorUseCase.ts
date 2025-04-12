@@ -16,6 +16,12 @@ export default class CreateNewContractorUseCase {
       throw new DomainError("Nome da empresa é um campo obrigatorio");
     }
 
+    const alreadyIsClient = await this.db.existContractorWithEmail(data.email);
+
+    if (alreadyIsClient) {
+      throw new DomainError("Email ja utilziado por outro cliente");
+    }
+
     const { id } = await this.db.createNewContractor({
       realmUnique: data.realmUnique,
       email: data.email,

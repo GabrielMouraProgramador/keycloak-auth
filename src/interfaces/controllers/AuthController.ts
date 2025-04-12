@@ -9,6 +9,7 @@ import CreateNewUserUseCase from "@/application/use-cases/auth/CreateNewUserUseC
 import LoginUseCase from "@/application/use-cases/auth/LoginUseCase";
 import { Email } from "@/domain/value-objects/Email";
 import { Password } from "@/domain/value-objects/Password";
+import { Telephone } from "@/domain/value-objects/Telephone";
 
 interface DTO {
   email: string;
@@ -36,7 +37,12 @@ export class AuthController {
       createNewUserUseCase,
     );
 
-    return await service.handle(email, phone, companyName, password);
+    return await service.handle(
+      new Email(email),
+      new Telephone(phone),
+      companyName,
+      password,
+    );
   }
   async loginAdmin(request: FastifyRequest) {
     const { email, password } = request.body as {

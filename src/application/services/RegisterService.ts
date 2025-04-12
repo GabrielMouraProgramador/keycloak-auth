@@ -18,21 +18,18 @@ export default class RegisterService {
   ) {}
 
   async handle(
-    email: string,
-    phone: string,
+    email: Email,
+    phone: Telephone,
     companyName: string,
     password: string,
   ): Promise<void> {
     const realm = await this.createRealmUniqueUseCase.execute(companyName);
 
-    const emailDomain = new Email(email);
-    const phoneDomain = new Telephone(phone);
-
     const { id: contractorId } = await this.createNewContractorUseCase.execulte(
       {
-        email: emailDomain,
+        email: email,
         realmUnique: realm,
-        phone: phoneDomain,
+        phone: phone,
         companyName: companyName,
       },
     );
@@ -52,9 +49,11 @@ export default class RegisterService {
 
     await this.createNewUserUseCase.execulte(
       new Client({
-        email: emailDomain,
-        phone: phoneDomain,
-        userName: realm.name,
+        email: email,
+        phone: phone,
+        userName: email.getValue(),
+        firstName: email.getValue(),
+        lastName: email.getValue(),
         password: new Password(password),
         consumer: new Consumer("ADMIN"),
         contractorId,

@@ -102,8 +102,8 @@ export default class ClientAuthRepositoryKeycloak
     consumer: Consumer,
     realm: RealmUnique,
   ): Promise<Client> {
-    const realmName = `${consumer.getValue()}-${realm.name}`;
     const access_token = await this.generateMasterToken();
+    const realmName = `${consumer.getValue()}-${realm.name}`;
     const infoClient = client.getValues();
     try {
       const result = await $fetch.raw(
@@ -115,18 +115,18 @@ export default class ClientAuthRepositoryKeycloak
           method: "POST",
           body: {
             username: infoClient.userName,
-            email: infoClient.email,
+            email: infoClient.email.getValue(),
             firstName: infoClient.firstName
               ? infoClient.firstName
-              : infoClient.email,
+              : infoClient.email.getValue(),
             lastName: infoClient.lastName
               ? infoClient.lastName
-              : infoClient.email,
+              : infoClient.email.getValue(),
             enabled: infoClient.enabled,
             credentials: [
               {
                 type: "password",
-                value: infoClient.password,
+                value: infoClient.password?.getValue(),
                 temporary: false,
               },
             ],
