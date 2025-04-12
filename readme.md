@@ -51,10 +51,11 @@ Ao realizar o cadastro via rota `/auth/register`:
 
 ## 📦 Como Executar com Docker
 
-````bash
+```bash
 docker-compose up --build
+```
 
-
+---
 
 ## 📁 Estrutura de Pastas BACKEND exemplo
 
@@ -128,4 +129,6 @@ docker-compose up --build
 │── package.json
 │── tsconfig.json
 │── .env
-````
+```
+
+---
