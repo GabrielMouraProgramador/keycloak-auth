@@ -1,45 +1,45 @@
 services:
-  ecustom-keycloak:
-    container_name: ecustom-keycloak
+  auth-keycloak:
+    container_name: auth-keycloak
     image: quay.io/keycloak/keycloak:26.1.4
-    network_mode: "host"
+    network_mode: 'host'
     ports:
-      - "8080:8080"
+      - '8080:8080'
     #volumes:
     #  - ./keycloak-theme:/opt/keycloak/themes/meu-tema
     environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
-      KC_BOOTSTRAP_ADMIN_PASSWORD: "admin"
-    command: ["start-dev"]
+      KC_BOOTSTRAP_ADMIN_USERNAME: 'admin'
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 'admin'
+    command: ['start-dev']
     restart: unless-stopped
 
-  ecustom-backend:
-    container_name: ecustom-backend
+  auth-backend:
+    container_name: auth-backend
     build:
-      context: .
+      context: ./backend
       dockerfile: docker/Dockerfile
     working_dir: /app
     ports:
-      - "8000:8000"
+      - '8000:8000'
     command: ./entrypoint.sh
-    network_mode: "host"
+    network_mode: 'host'
     depends_on:
-      - ecustom-db-backend
+      - auth-db-backend
     environment:
-      KEYCLOAK_ENDPOINT_BASE: "http://localhost:8080"
-      KEYCLOAK_CLIENT_ID: "admin-cli"
-      KEYCLOAK_USER: "admin"
-      KEYCLOAK_PASSWORD: "admin"
-      KEYCLOAK_GRANT_TYPE: "password"
-      KEYCLOAK_SECRET_KEY: "i0WoWWoCNlSxzLouaiQ8QbCzFXUYfJAA"
-      DATABASE_URL: "postgresql://node:randompassword@localhost:5432/mydb?schema=public"
-      URL_BASE_ADMIN: "localhost:3000"
+      KEYCLOAK_ENDPOINT_BASE: 'http://localhost:8080'
+      KEYCLOAK_CLIENT_ID: 'admin-cli'
+      KEYCLOAK_USER: 'admin'
+      KEYCLOAK_PASSWORD: 'admin'
+      KEYCLOAK_GRANT_TYPE: 'password'
+      KEYCLOAK_SECRET_KEY: 'i0WoWWoCNlSxzLouaiQ8QbCzFXUYfJAA'
+      DATABASE_URL: 'postgresql://node:randompassword@localhost:5432/mydb?schema=public'
+      URL_BASE_ADMIN: 'localhost:3000'
 
-  ecustom-db-backend:
-    container_name: ecustom-db-backend
+  auth-db-backend:
+    container_name: auth-db-backend
     image: postgres
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: node
       POSTGRES_PASSWORD: randompassword
@@ -47,4 +47,18 @@ services:
     # volumes:
     #   - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
-    network_mode: "host"
+    network_mode: 'host'
+
+  auth-front:
+    container_name: auth-front
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    working_dir: /var/www/html/frontend
+    network_mode: 'host'
+    environment:
+      NITRO_SERVER: 3000
+    volumes:
+      - ./frontend:/var/www/html/frontend
+      - ./frontend/node_modules:/var/www/html/frontend/node_modules
+    command: sh -c "npm install && npm run dev"
