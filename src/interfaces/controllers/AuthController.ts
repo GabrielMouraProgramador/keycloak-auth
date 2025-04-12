@@ -41,7 +41,7 @@ export class AuthController {
       new Email(email),
       new Telephone(phone),
       companyName,
-      password,
+      new Password(password),
     );
   }
   async loginAdmin(request: FastifyRequest) {

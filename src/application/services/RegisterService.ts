@@ -21,7 +21,7 @@ export default class RegisterService {
     email: Email,
     phone: Telephone,
     companyName: string,
-    password: string,
+    password: Password,
   ): Promise<void> {
     const realm = await this.createRealmUniqueUseCase.execute(companyName);
 
@@ -54,7 +54,7 @@ export default class RegisterService {
         userName: email.getValue(),
         firstName: email.getValue(),
         lastName: email.getValue(),
-        password: new Password(password),
+        password: password,
         consumer: new Consumer("ADMIN"),
         contractorId,
       }),
