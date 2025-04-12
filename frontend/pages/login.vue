@@ -1,5 +1,3 @@
-
-
 <template>
   <VContainer fluid class="fill-height">
     <VRow no-gutters align="center" justify="center" class="fill-height">
@@ -8,6 +6,31 @@
           <VCol cols="12" md="6">
             <h1>Sign In</h1>
             <p class="text-medium-emphasis">Enter your details to get started</p>
+            <div calss="h-50">
+              <v-alert
+                v-model="alert.active"
+                variant="tonal"
+                color="rgb(220 38 38)"
+                class="text-start"
+                closable
+                border="start"
+                border-color="rgb(220 38 38)"
+              >
+                <template v-slot:default>
+                  <div class="d-flex justify-start gap-2">
+                    <v-icon
+                      color="rgb(220 38 38)"
+                      icon="mdi-alert-circle"
+                      size="large"
+                      class="my-auto"
+                    ></v-icon>
+                    <p class="my-auto text-sm md:text-base text-red-600">
+                      {{ alert.text }}
+                    </p>
+                  </div>
+                </template>
+              </v-alert>
+            </div>
 
             <VForm @submit.prevent="submit" class="mt-7">
               <div class="mt-1">
@@ -36,11 +59,7 @@
                 <VBtn type="submit" block min-height="44" class="gradient primary">Sign In</VBtn>
               </div>
             </VForm>
-            <p class="text-body-2 mt-10">
-              <NuxtLink to="/reset-password" class="font-weight-bold text-primary"
-                >Forgot password?</NuxtLink
-              >
-            </p>
+
             <p class="text-body-2 mt-4">
               <span
                 >Don't have an account?
@@ -72,15 +91,41 @@
   </VContainer>
 </template>
 
-<script setup>
-definePageMeta({
-  middleware: ["auth"]
-})
+<script setup lang="ts">
+const { ruleEmail, rulePassLen, ruleRequired } = useFormRules();
 
 const email = ref("");
 const password = ref("");
+const alert = ref({
+  active: false,
+  text: "",
+});
 
-const { ruleEmail, rulePassLen, ruleRequired } = useFormRules();
+const submit = async () => {
+  alert.value.active = false;
+  alert.value.text = "";
+  try {
+    const { data, error } = await $fetch<{
+      data: any;
+      error: any;
+    }>("http://localhost:8000/auth/login-admin", {
+      method: "POST",
+      body: {
+        email: email.value,
+        password: password.value,
+      },
+    });
+    if (error) {
+      alert.value.active = true;
+      alert.value.text = error;
+      return;
+    }
 
-const submit = async () => {};
+    window.location.href = `${data.redirect}?token=${data.data_token.access_token}&refresh=${data.data_token.refresh_token}`;
+  } catch (err) {
+    console.error(err);
+    alert.value.active = true;
+    alert.value.text = "Não foi possível fazer login.";
+  }
+};
 </script>
